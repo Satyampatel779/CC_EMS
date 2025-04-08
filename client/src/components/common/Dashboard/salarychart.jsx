@@ -41,7 +41,9 @@ export const SalaryChart = ({ balancedata }) => {
 
     let trendingUp = 0
 
-    if (balancedata) {
+    if (balancedata && chartData.length >= 2 && 
+        chartData[chartData.length - 1] && 
+        chartData[chartData.length - 2]) {
         const difference = chartData[chartData.length - 1]["AvailableAmount"] - chartData[chartData.length - 2]["AvailableAmount"]
         trendingUp += Math.round((difference * 100) / chartData[chartData.length - 2]["AvailableAmount"])
     }
@@ -52,7 +54,8 @@ export const SalaryChart = ({ balancedata }) => {
             </div>
             <Card className="mx-2">
                 <CardHeader>
-                    <CardTitle className="min-[250px]:text-xs sm:text-md md:text-lg lg:text-xl">Available Salary Amount : {chartData.length > 0 ? chartData[chartData.length - 1]["AvailableAmount"] : 0}</CardTitle>
+                <CardTitle className="min-[250px]:text-xs sm:text-md md:text-lg lg:text-xl">Available Salary Amount : {chartData.length > 0 && chartData[chartData.length - 1] ? chartData[chartData.length - 1]["AvailableAmount"] : 0}
+                </CardTitle>
                     <CardDescription className="min-[250px]:text-xs sm:text-md md:text-lg lg:text-xl">
                         Salaries Chart
                     </CardDescription>
@@ -107,8 +110,7 @@ export const SalaryChart = ({ balancedata }) => {
                                 Trending up by {trendingUp} % this month
                                 <TrendingUp className="h-4 w-4" />
                             </div>
-                            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                                {chartData.length > 0 ? `${chartData[0]["month"]} 2024 - ${chartData[chartData.length - 1]["month"]} 2024` : null}
+                            <div className="flex items-center gap-2 leading-none text-muted-foreground">{chartData.length >= 2 ? `${chartData[0]["month"]} 2024 - ${chartData[chartData.length - 1]["month"]} 2024` : chartData.length === 1 ? `${chartData[0]["month"]} 2024` : 'No data available'}
                             </div>
                         </div>
                     </div>
