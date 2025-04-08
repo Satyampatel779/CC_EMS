@@ -37,3 +37,24 @@ export const HRDepartmentPageEndPoints = {
 export const EmployeesIDsEndPoints = {
     GETALL: "/api/v1/employee/all-employees-ids",
 } 
+
+export const HRSalaryPageEndPoints = {
+    GETALL: "/api/v1/salary/all",
+    GETONE: (id) => `/api/v1/salary/${id}`,
+    CREATE: "/api/v1/salary/create-salary",
+    UPDATE: "/api/v1/salary/update-salary",
+    DELETE: (id) => `/api/v1/salary/delete-salary/${id}`
+  };
+
+export const EmployeeIDsEndPoints = {
+    GETALL: "/api/v1/employee/all-employees-ids"
+};
+
+export const LeaveEndPoints = {
+    GETALL: "/api/leave/all",
+    CREATE: "/api/leave/create-leave",
+    GETONE: (leaveID) => `/api/leave/${leaveID}`,
+    EMPLOYEE_UPDATE: "/api/leave/employee-update-leave",
+    HR_UPDATE: "/api/leave/HR-update-leave",
+    DELETE: (leaveID) => `/api/leave/delete-leave/${leaveID}`
+};

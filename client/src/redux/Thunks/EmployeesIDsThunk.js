@@ -1,15 +1,15 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { apiService } from "../apis/apiService";
-import { EmployeesIDsEndPoints } from "../apis/APIsEndpoints";
+import { EmployeeIDsEndPoints } from "../apis/APIsEndpoints";
 
-export const fetchEmployeesIDs = createAsyncThunk("fetchEmployeesIDs", async (fetchdata, { rejectWithValue }) => {
+export const HandleGetEmployeeIDs = createAsyncThunk('HandleGetEmployeeIDs', async (_, { rejectWithValue }) => {
     try {
-        const { apiroute } = fetchdata
-        const response = await apiService.get(`${EmployeesIDsEndPoints[apiroute]}`, {
+        const response = await apiService.get(EmployeeIDsEndPoints.GETALL || "/api/v1/employee/all-employees-ids", {
             withCredentials: true
-        })
-        return response.data
+        });
+        return response.data;
     } catch (error) {
-        return rejectWithValue(error.response.data)
+        return rejectWithValue(error.response?.data || { message: "Failed to fetch employee IDs" });
     }
-})
+});
+export const fetchEmployeesIDs = HandleGetEmployeeIDs;

@@ -12,6 +12,10 @@ import { HRDashboardPage } from "../pages/HumanResources/Dashboard Childs/dashbo
 import { HRProtectedRoutes } from "./HRprotectedroutes.jsx"
 import { HREmployeesPage } from "../pages/HumanResources/Dashboard Childs/employeespage.jsx"
 import { HRDepartmentPage } from "../pages/HumanResources/Dashboard Childs/departmentpage.jsx"
+import { HRSalaryPage } from "../pages/HumanResources/Dashboard Childs/salarypage.jsx";
+import { AttendancesPage } from "../pages/HumanResources/Dashboard Childs/attendances.jsx";
+import { Navigate } from "react-router-dom";
+
 export const HRRoutes = [
     {
         path: "/auth/HR/signup",
@@ -20,6 +24,11 @@ export const HRRoutes = [
     {
         path: "/auth/HR/login",
         element: <HRLogin />
+    },
+    {
+        // Add a redirect from /auth/HR/employees to /HR/dashboard/employees
+        path: "/auth/HR/employees",
+        element: <Navigate to="/HR/dashboard/employees" replace />
     },
     {
         path: "/HR/dashboard",
@@ -59,4 +68,18 @@ export const HRRoutes = [
         path: "/auth/HR/resetpassword/:token",
         element: <ResetHRPasswordPage />
     },
+    {
+        path: "/HR/dashboard/salaries",
+        element: <HRSalaryPage />
+    },
+    {
+        path: "/HR/dashboard/attendances",
+        element: (
+            <HRProtectedRoutes>
+                <HRDashbaord>
+                    <AttendancesPage />
+                </HRDashbaord>
+            </HRProtectedRoutes>
+        )
+    }
 ]
