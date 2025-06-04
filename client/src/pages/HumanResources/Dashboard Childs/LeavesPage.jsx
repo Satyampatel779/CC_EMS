@@ -13,7 +13,8 @@ export function LeavesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedLeave, setSelectedLeave] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const { user } = useAuth();
+  const authState = useAuth();
+  const user = authState?.user || null;
   const [filterStatus, setFilterStatus] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -132,10 +133,18 @@ export function LeavesPage() {
         setSelectedLeave(response.data.data);
         setShowModal(true);
       } else {
-        toast.error(response.data.message || "Failed to fetch leave details");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: response.data.message || "Failed to fetch leave details"
+        });
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "An error occurred while fetching leave details");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.response?.data?.message || "An error occurred while fetching leave details"
+      });
     } finally {
       setIsLoading(false);
     }

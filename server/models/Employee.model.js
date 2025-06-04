@@ -89,6 +89,10 @@ const EmployeeSchema = new Schema({
     organizationID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Organization"
+    },
+    profilePicture: {
+        type: String, // URL or path to the uploaded image
+        default: null
     }
 },
     { timestamps: true }

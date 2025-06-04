@@ -7,19 +7,23 @@ const router = express.Router()
 
 router.post("/signup", HandleHRSignup)
 
-router.post("/verify-email", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleHRVerifyEmail)
+// Remove login requirement for email verification
+router.post("/verify-email", HandleHRVerifyEmail)
 
-router.post("/resend-verify-email", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleHRResetverifyEmail)
+// Remove login requirement for resending verification email
+router.post("/resend-verify-email", HandleHRResetverifyEmail)
 
 router.post("/login", HandleHRLogin)
 
-router.get("/check-login", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleHRCheck)
+// Public check-login endpoint: returns success false if no valid token
+router.get("/check-login", HandleHRCheck)
 
 router.get("/check-verify-email", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleHRcheckVerifyEmail)
 
 router.post("/logout", HandleHRLogout)
 
-router.post("/forgot-password", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleHRForgotPassword)
+// Remove login requirement for forgot password
+router.post("/forgot-password", HandleHRForgotPassword)
 
 router.post("/reset-password/:token", HandleHRResetPassword)
 

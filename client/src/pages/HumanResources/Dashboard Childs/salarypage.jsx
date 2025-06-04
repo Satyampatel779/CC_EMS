@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useDispatch, useSelector } from "react-redux"
+import { createSelector } from "@reduxjs/toolkit"
 import * as Dialog from "@radix-ui/react-dialog"
 import { Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Select, MenuItem, FormControl, InputLabel } from "@mui/material"
 import LoadingBar from "react-top-loading-bar"
@@ -10,16 +11,27 @@ import { Loading } from "../../../components/common/loading.jsx"
 import { HRdashboardSidebar } from "../../../components/ui/HRsidebar"
 import { SidebarProvider } from "@/components/ui/sidebar"
 
+// Memoized selectors to prevent unnecessary re-renders
+const selectSalaryState = createSelector(
+  [(state) => state.HRSalaryPageReducer],
+  (salaryState) => salaryState || {}
+);
+
+const selectEmployeesState = createSelector(
+  [
+    (state) => state.EMployeesIDReducer,
+    (state) => state.EmployeesIDsReducer,
+    (state) => state.HREmployeesIDsReducer
+  ],
+  (emReducer, employeesReducer, hrEmployeesReducer) => 
+    emReducer || employeesReducer || hrEmployeesReducer || {}
+);
+
 export const HRSalaryPage = () => {
   const dispatch = useDispatch();
-  const salaryState = useSelector((state) => state.HRSalaryPageReducer || {});
-  const employeesState = useSelector((state) => {
-    // Try all possible reducer names for employee data
-    return state.EMployeesIDReducer || 
-           state.EmployeesIDsReducer || 
-           state.HREmployeesIDsReducer || 
-           {};
-  });
+  const salaryState = useSelector(selectSalaryState);
+  const employeesState = useSelector(selectEmployeesState);
+  
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [currentSalary, setCurrentSalary] = useState(null);
@@ -122,20 +134,10 @@ export const HRSalaryPage = () => {
     });
     setIsUpdateDialogOpen(true);
   };
-
   if (salaryState.isLoading) {
     return <Loading />;
   }
-  // Add this just before the return statement in your HRSalaryPage component
-  console.log("Salary state:", salaryState);
-  console.log("Employees state:", employeesState);
-
-  // Within the component's return, add this debugging section
-  <div className="debug-section mt-4 p-4 bg-gray-100 rounded-md">
-    <h3 className="text-lg font-semibold">Debug Information</h3>
-    <p>Salary Data Status: {salaryState.isLoading ? 'Loading...' : salaryState.data ? 'Loaded' : 'No Data'}</p>
-    <p>Employee Data Status: {employeesState?.data ? 'Loaded' : 'No Data'}</p>
-  </div>
+  
   return (
     <SidebarProvider>
       <div className="flex">

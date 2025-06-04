@@ -1,12 +1,57 @@
-import { RouterProvider } from "react-router-dom"
-import { router } from "./routes/AppRoutes.jsx"
+import { useEffect, useState } from 'react'
+import { Routes, Route } from 'react-router-dom'
+import { EmployeeRoutes } from './routes/Employeeroutes'
+import { HRRoutes } from './routes/HRroutes'
+import { initAuth } from './utils/initAuth';
+import { ToastContainer } from 'react-toastify';
+import ErrorBoundary from './components/common/ErrorBoundary';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
+  const [authInitialized, setAuthInitialized] = useState(false);
+  
+  useEffect(() => {
+    // Initialize authentication on app start
+    const init = async () => {
+      const result = await initAuth();
+      console.log('Auth initialized:', result);
+      setAuthInitialized(true);
+    };
+    
+    init();
+  }, []);
+  
   return (
-    <RouterProvider router={router} future={{
-      v7_startTransition: true,
-    }} />
-  )
+    <ErrorBoundary>
+      <Routes>
+        {HRRoutes.map((route, index) => (
+          <Route key={index} path={route.path} element={route.element}>
+            {route.children && route.children.map((childRoute, childIndex) => (
+              <Route key={childIndex} path={childRoute.path} element={childRoute.element} />
+            ))}
+          </Route>
+        ))}
+        {EmployeeRoutes.map((route, index) => (
+          <Route key={index} path={route.path} element={route.element}>
+            {route.children && route.children.map((childRoute, childIndex) => (
+              <Route key={childIndex} path={childRoute.path} element={childRoute.element} />
+            ))}
+          </Route>
+        ))}
+      </Routes>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+    </ErrorBoundary>
+  );
 }
 
 export default App

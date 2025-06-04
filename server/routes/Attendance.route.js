@@ -113,4 +113,93 @@ router.delete('/:id', VerifyhHRToken, async (req, res) => {
     }
 });
 
+// Employee clock-in
+router.post('/clock-in', VerifyEmployeeToken, async (req, res) => {
+    try {
+        const employeeId = req.body.employeeId || req.EMid;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        let attendance = await Attendance.findOne({ employeeId, date: today, organizationID: req.ORGID });
+        if (attendance && attendance.checkInTime) {
+            return res.status(400).json({ success: false, message: 'Already clocked in for today' });
+        }
+        if (!attendance) {
+            attendance = new Attendance({
+                employeeId,
+                date: today,
+                status: 'Present',
+                checkInTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                organizationID: req.ORGID
+            });
+        } else {
+            attendance.checkInTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        await attendance.save();
+        res.json({ success: true, message: 'Clocked in successfully', data: attendance });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Employee clock-out
+router.post('/clock-out', VerifyEmployeeToken, async (req, res) => {
+    try {
+        const employeeId = req.body.employeeId || req.EMid;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const attendance = await Attendance.findOne({ employeeId, date: today, organizationID: req.ORGID });
+        if (!attendance || !attendance.checkInTime) {
+            return res.status(400).json({ success: false, message: 'Not clocked in yet' });
+        }
+        if (attendance.checkOutTime) {
+            return res.status(400).json({ success: false, message: 'Already clocked out for today' });
+        }
+        attendance.checkOutTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        // Calculate work hours
+        const [inHour, inMinute] = attendance.checkInTime.split(':').map(Number);
+        const [outHour, outMinute] = attendance.checkOutTime.split(':').map(Number);
+        let workHours = (outHour + outMinute / 60) - (inHour + inMinute / 60);
+        if (workHours < 0) workHours += 24; // handle overnight
+        attendance.workHours = workHours;
+        await attendance.save();
+        res.json({ success: true, message: 'Clocked out successfully', data: attendance });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Get employee clock-in status
+router.get('/employee-status/:employeeId', VerifyEmployeeToken, async (req, res) => {
+    try {
+        const employeeId = req.params.employeeId || req.EMid;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const attendance = await Attendance.findOne({ employeeId, date: today, organizationID: req.ORGID });
+        let isClockedIn = false;
+        let lastActivity = null;
+        if (attendance) {
+            if (attendance.checkInTime && !attendance.checkOutTime) {
+                isClockedIn = true;
+                lastActivity = { type: 'clockIn', timestamp: attendance.date };
+            } else if (attendance.checkOutTime) {
+                lastActivity = { type: 'clockOut', timestamp: attendance.date };
+            }
+        }
+        res.json({ success: true, data: { isClockedIn, lastActivity } });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Get employee attendance history
+router.get('/employee-history/:employeeId', VerifyEmployeeToken, async (req, res) => {
+    try {
+        const employeeId = req.params.employeeId || req.EMid;
+        const records = await Attendance.find({ employeeId, organizationID: req.ORGID }).sort({ date: -1 });
+        res.json({ success: true, data: records });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 export default router;

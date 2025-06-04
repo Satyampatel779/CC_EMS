@@ -9,7 +9,7 @@ import { ListContainer } from "../../../components/common/Dashboard/ListDesigns"
 import { AddEmployeesDialogBox } from "../../../components/common/Dashboard/dialogboxes.jsx"
 export const HREmployeesPage = () => {
     const dispatch = useDispatch()
-    const HREmployeesState = useSelector((state) => state.HREmployeesPageReducer)
+    const HREmployeesState = useSelector((state) => state.HREmployeesPageReducer || {})
     const table_headings = ["Full Name", "Email", "Department", "Contact Number", "Modify Employee"]
 
     useEffect(() => {
@@ -19,6 +19,7 @@ export const HREmployeesPage = () => {
     }, [HREmployeesState.fetchData])
 
     useEffect(() => {
+        // Initial data fetch on component mount
         dispatch(HandleGetHREmployees({ apiroute: "GETALL" }))
     }, [])
 

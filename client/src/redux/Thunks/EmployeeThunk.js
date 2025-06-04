@@ -35,8 +35,23 @@ export const HandlePostEmployees = createAsyncThunk("HandlePostEmployees", async
     }
 })
 
-export const HandlePutEmployees = createAsyncThunk()
+export const HandlePutEmployees = createAsyncThunk(
+  "HandlePutEmployees",
+  async (_, { rejectWithValue }) => {
+    return rejectWithValue({ message: "Not implemented" });
+  }
+)
 
-export const HandlePatchEmployees = createAsyncThunk()
+export const HandlePatchEmployees = createAsyncThunk(
+  "HandlePatchEmployees",
+  async (_, { rejectWithValue }) => {
+    return rejectWithValue({ message: "Not implemented" });
+  }
+)
 
-export const HandleDeleteEmployees = createAsyncThunk()
+export const HandleDeleteEmployees = createAsyncThunk(
+  "HandleDeleteEmployees",
+  async (_, { rejectWithValue }) => {
+    return rejectWithValue({ message: "Not implemented" });
+  }
+)

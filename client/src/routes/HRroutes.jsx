@@ -14,7 +14,16 @@ import { HREmployeesPage } from "../pages/HumanResources/Dashboard Childs/employ
 import { HRDepartmentPage } from "../pages/HumanResources/Dashboard Childs/departmentpage.jsx"
 import { HRSalaryPage } from "../pages/HumanResources/Dashboard Childs/salarypage.jsx";
 import { AttendancesPage } from "../pages/HumanResources/Dashboard Childs/attendances.jsx";
+import { CalendarPage } from "../pages/HumanResources/Dashboard Childs/CalendarPage.jsx";
+import { HRSettingsPage } from "../pages/HumanResources/HRSettingsPage.jsx";
+import RecruitmentManagementPage from "../pages/HumanResources/Dashboard Childs/RecruitmentManagementPage.jsx";
+import RequestManagementPage from "../pages/HumanResources/Dashboard Childs/RequestManagementPage.jsx";
+import { InterviewInsightsPage } from "../pages/HumanResources/Dashboard Childs/InterviewInsightsPage.jsx";
+import HRProfilesPage from "../pages/HumanResources/Dashboard Childs/HRProfilesPage.jsx";
+import { LeavesPage } from "../pages/HumanResources/Dashboard Childs/LeavesPage.jsx";
 import { Navigate } from "react-router-dom";
+import { SimplifiedLogin } from "../components/auth/SimplifiedLogin";
+import { AuthTestPage } from "../components/auth/AuthTestPage";
 
 export const HRRoutes = [
     {
@@ -24,6 +33,15 @@ export const HRRoutes = [
     {
         path: "/auth/HR/login",
         element: <HRLogin />
+    },
+    {
+        path: "/auth/test",
+        element: <AuthTestPage />
+    },
+    {
+        // Add a redirect from /auth/HR/dashboard to /HR/dashboard/dashboard-data
+        path: "/auth/HR/dashboard",
+        element: <Navigate to="/HR/dashboard/dashboard-data" replace />
     },
     {
         // Add a redirect from /auth/HR/employees to /HR/dashboard/employees
@@ -45,6 +63,42 @@ export const HRRoutes = [
             {
                 path: "/HR/dashboard/departments",
                 element: <HRDepartmentPage />
+            },
+            {
+                path: "/HR/dashboard/salaries",
+                element: <HRSalaryPage />
+            },
+            {
+                path: "/HR/dashboard/attendances",
+                element: <AttendancesPage />
+            },
+            {
+                path: "/HR/dashboard/leaves",
+                element: <LeavesPage />
+            },
+            {
+                path: "/HR/dashboard/calendar",
+                element: <CalendarPage />
+            },
+            {
+                path: "/HR/dashboard/recruitment",
+                element: <RecruitmentManagementPage />
+            },
+            {
+                path: "/HR/dashboard/requests",
+                element: <RequestManagementPage />
+            },
+            {
+                path: "/HR/dashboard/interview-insights",
+                element: <InterviewInsightsPage />
+            },
+            {
+                path: "/HR/dashboard/hr-profiles",
+                element: <HRProfilesPage />
+            },
+            {
+                path: "/HR/dashboard/settings",
+                element: <HRSettingsPage />
             }
         ]
     },
@@ -69,17 +123,7 @@ export const HRRoutes = [
         element: <ResetHRPasswordPage />
     },
     {
-        path: "/HR/dashboard/salaries",
-        element: <HRSalaryPage />
-    },
-    {
-        path: "/HR/dashboard/attendances",
-        element: (
-            <HRProtectedRoutes>
-                <HRDashbaord>
-                    <AttendancesPage />
-                </HRDashbaord>
-            </HRProtectedRoutes>
-        )
+        path: "/debug/login",
+        element: <SimplifiedLogin />
     }
 ]

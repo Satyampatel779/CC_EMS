@@ -16,7 +16,7 @@ export const HRDashbaord = () => {
     }, [])
 
 
-    console.log("this is the current path location", location)
+    // console.log("this is the current path location", location)
 
 
     return (

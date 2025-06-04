@@ -24,6 +24,10 @@ const LeaveSchema = new Schema({
     type: String,
     required: true
   },
+  type: { // Added leave type field
+    type: String,
+    required: true
+  },
   status: {
     type: String,
     required: true,
@@ -33,6 +37,9 @@ const LeaveSchema = new Schema({
   approvedby: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "HumanResources"
+  },
+  decisiondate: { // Added decision date field
+    type: Date
   },
   organizationID: {
     type: mongoose.Schema.Types.ObjectId,

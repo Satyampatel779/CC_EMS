@@ -90,7 +90,7 @@ export const HRDepartmentTabs = () => {
             })
         }
 
-        console.log("test message")
+        // console.log("test message")
 
     }, [HRDepartmentState.fetchData, HRDepartmentState.error, HRDepartmentState.success])
 

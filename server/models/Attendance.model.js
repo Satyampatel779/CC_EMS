@@ -41,6 +41,5 @@ const attendanceSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-// Change from CommonJS to ES Module syntax
 const Attendance = mongoose.model('Attendance', attendanceSchema);
 export default Attendance;

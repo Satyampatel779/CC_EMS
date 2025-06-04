@@ -33,6 +33,10 @@ const OrganizationSchema = new Schema({
         required: true,
         unique: true
     },
+    policies: {
+        type: String,
+        default: ""
+    },
 },
     {
         timestamps: true,

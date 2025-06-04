@@ -39,4 +39,4 @@ const BalanceSchema = new Schema({
         timestamps: true
     })
 
-export const Balance = mongoose.model("Balance", BalanceSchema)
+export const Balance = mongoose.model("Balance", BalanceSchema);

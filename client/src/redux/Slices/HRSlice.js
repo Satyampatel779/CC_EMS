@@ -19,10 +19,26 @@ const HRSlice = createSlice({
             content: null
         }
     },
+    reducers: {
+        logoutHR: (state) => {
+            state.data = null;
+            state.isAuthenticated = false;
+            state.isAuthourized = false;
+            state.isVerified = false;
+            state.isVerifiedEmailAvailable = false;
+            state.isResetPassword = false;
+            state.error = {
+                status: false,
+                message: null,
+                content: null
+            };
+        }
+    },
     extraReducers: (builder) => {
         HRAsyncReducer(builder, HandlePostHumanResources)
         HRAsyncReducer(builder, HandleGetHumanResources)
     }
 })
 
+export const { logoutHR } = HRSlice.actions;
 export default HRSlice.reducer

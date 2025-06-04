@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '@/lib/axios';
 import { format } from 'date-fns';
 import { Input } from "@/components/ui/input";
 import {
@@ -21,15 +21,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from 'react-toastify';
+import { AttendanceEndPoints, HREmployeesPageEndPoints } from '@/redux/apis/APIsEndpoints';
 
 export function AttendancesPage() {
   const [attendances, setAttendances] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState(new Date());
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedEmployee, setSelectedEmployee] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');  const [selectedEmployee, setSelectedEmployee] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newAttendance, setNewAttendance] = useState({
     employeeId: '',
@@ -40,29 +40,15 @@ export function AttendancesPage() {
     workHours: 8,
     comments: ''
   });
-
   // Fetch attendances and employees data
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('token');
-        
-        if (!token) {
-          toast.error('Authentication token not found');
-          setLoading(false);
-          return;
-        }
-        
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        };
         
         const [attendancesRes, employeesRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/v1/attendance', config),
-          axios.get('http://localhost:5000/api/v1/employee/all', config)
+          axios.get(AttendanceEndPoints.GETALL),
+          axios.get(HREmployeesPageEndPoints.GETALL)
         ]);
         
         setAttendances(attendancesRes.data || []);
@@ -84,11 +70,10 @@ export function AttendancesPage() {
     const employeeName = employee ? `${employee.firstname} ${employee.lastname}` : '';
     const attendanceDate = new Date(attendance.date).toLocaleDateString();
     const selectedDateStr = date ? date.toLocaleDateString() : '';
-    
-    const matchesSearch = employeeName.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = employeeName.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesDate = !date || attendanceDate === selectedDateStr;
-    const matchesEmployee = !selectedEmployee || attendance.employeeId === selectedEmployee;
-    const matchesStatus = !selectedStatus || attendance.status === selectedStatus;
+    const matchesEmployee = selectedEmployee === 'all' || attendance.employeeId === selectedEmployee;
+    const matchesStatus = selectedStatus === 'all' || attendance.status === selectedStatus;
     
     return matchesSearch && matchesDate && matchesEmployee && matchesStatus;
   });
@@ -121,24 +106,11 @@ export function AttendancesPage() {
   useEffect(() => {
     calculateWorkHours();
   }, [newAttendance.checkInTime, newAttendance.checkOutTime]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        toast.error('Authentication token not found');
-        return;
-      }
-      
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      };
-      
-      const response = await axios.post('http://localhost:5000/api/v1/attendance', newAttendance, config);
+      const response = await axios.post(AttendanceEndPoints.CREATE, newAttendance);
       
       setAttendances([...attendances, response.data]);
       setIsModalOpen(false);
@@ -158,23 +130,10 @@ export function AttendancesPage() {
       toast.error(error.response?.data?.message || 'Failed to add attendance record');
     }
   };
-
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this attendance record?')) {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          toast.error('Authentication token not found');
-          return;
-        }
-        
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        };
-        
-        await axios.delete(`http://localhost:5000/api/v1/attendance/${id}`, config);
+        await axios.delete(AttendanceEndPoints.DELETE(id));
         setAttendances(attendances.filter(a => a._id !== id));
         toast.success('Attendance record deleted successfully');
       } catch (error) {
@@ -357,13 +316,12 @@ export function AttendancesPage() {
         
         <div className="p-4 bg-white rounded-lg shadow space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Filter by Employee</label>
-            <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+            <label className="text-sm font-medium">Filter by Employee</label>            <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
               <SelectTrigger>
                 <SelectValue placeholder="All Employees" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Employees</SelectItem>
+                <SelectItem value="all">All Employees</SelectItem>
                 {employees.map(employee => (
                   <SelectItem key={employee._id} value={employee._id}>
                     {employee.firstname} {employee.lastname}
@@ -374,13 +332,12 @@ export function AttendancesPage() {
           </div>
           
           <div className="space-y-2">
-            <label className="text-sm font-medium">Filter by Status</label>
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+            <label className="text-sm font-medium">Filter by Status</label>            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
               <SelectTrigger>
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="Present">Present</SelectItem>
                 <SelectItem value="Absent">Absent</SelectItem>
                 <SelectItem value="Late">Late</SelectItem>
@@ -391,12 +348,11 @@ export function AttendancesPage() {
           </div>
           
           <Button 
-            variant="outline" 
-            onClick={() => {
+            variant="outline"            onClick={() => {
               setSearchQuery('');
               setDate(null);
-              setSelectedEmployee('');
-              setSelectedStatus('');
+              setSelectedEmployee('all');
+              setSelectedStatus('all');
             }}
           >
             Clear Filters

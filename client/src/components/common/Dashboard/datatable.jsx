@@ -8,7 +8,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 export const DataTable = ({ noticedata }) => {
-    console.log("This is notice data", noticedata)
+    // console.log("This is notice data", noticedata)
     const Notices = [
         // {
         //     invoice: "INV001",
@@ -146,7 +146,7 @@ export const DataTable = ({ noticedata }) => {
 
     if (noticedata) {
         for (let index = 0; index < noticedata.notices.length; index++) {
-            console.log("This is notice data", noticedata.notices)
+            // console.log("This is notice data", noticedata.notices)
             Notices.push(
                 {
                     noticeID: index + 1,

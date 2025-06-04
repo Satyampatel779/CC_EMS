@@ -54,10 +54,11 @@ export const HandleRecruitment = async (req, res) => {
 
 export const HandleUpdateRecruitment = async (req, res) => {
     try {
-        const { recruitmentID, jobtitle, description, departmentID, applicationIDArray } = req.body
+        const { recruitmentID } = req.params; 
+        const { jobtitle, description, departmentID, applicationIDArray } = req.body
 
-        if (!recruitmentID || !jobtitle || !description || !departmentID) {
-            return res.status(400).json({ success: false, message: "All fields are required" })
+        if (!recruitmentID) {
+            return res.status(400).json({ success: false, message: "Recruitment ID is required in URL parameters" })
         }
 
         const recruitment = await Recruitment.findOne({ _id: recruitmentID, organizationID: req.ORGID })
@@ -66,39 +67,56 @@ export const HandleUpdateRecruitment = async (req, res) => {
             return res.status(404).json({ success: false, message: "Recruitment not found" })
         }
 
-        if (applicationIDArray) {
+        let updateData = {};
+        if (jobtitle) updateData.jobtitle = jobtitle;
+        if (description) updateData.description = description;
+        if (departmentID) updateData.department = departmentID;
 
-            const applicants = recruitment.application
-
-            const selectedApplications = []
-            const rejectedApplications = []
-
-            for (let index = 0; index < applicationIDArray.length; index++) {
-                if (!applicants.includes(applicationIDArray[index])) {
-                    selectedApplications.push(applicationIDArray[index])
-                }
-                else {
-                    rejectedApplications.push(applicationIDArray[index])
-                }
-            }
-
-            if (rejectedApplications.length > 0) {
-                return res.status(404).json({ success: false, message: `Some Applicants Are Already Present Under the ${recruitment.jobtitle}`, rejectedApplications: rejectedApplications })
-            }
-
-            for (let index = 0; index < selectedApplications.length; index++) {
-                applicants.push(selectedApplications[index])
-            }
-
-            await recruitment.save()
-            return res.status(200).json({ success: true, message: "Recruitment updated successfully", data: recruitment })
+        if (Object.keys(updateData).length > 0) {
+            Object.assign(recruitment, updateData);
         }
 
-        const updatedRecruitment = await Recruitment.findByIdAndUpdate(recruitmentID, { jobtitle, description, department: departmentID }, { new: true })
-        return res.status(200).json({ success: true, message: "Recruitment updated successfully", data: updatedRecruitment })
+        let addedApplicants = [];
+        let alreadyPresentApplicants = [];
+
+        if (applicationIDArray && Array.isArray(applicationIDArray)) {
+            const currentApplicants = recruitment.application.map(id => id.toString());
+
+            for (const applicantId of applicationIDArray) {
+                if (!currentApplicants.includes(applicantId)) {
+                    recruitment.application.push(applicantId);
+                    addedApplicants.push(applicantId);
+                } else {
+                    alreadyPresentApplicants.push(applicantId);
+                }
+            }
+        }
+
+        if (Object.keys(updateData).length > 0 || addedApplicants.length > 0) {
+            const updatedRecruitment = await recruitment.save();
+            return res.status(200).json({
+                success: true,
+                message: `Recruitment updated successfully. ${addedApplicants.length} applicants added. ${alreadyPresentApplicants.length} applicants already present.`, 
+                data: updatedRecruitment,
+                addedApplicants,
+                alreadyPresentApplicants
+            });
+        } else {
+            return res.status(200).json({
+                success: true,
+                message: "No changes applied. Provide details to update or new applicant IDs to add.",
+                data: recruitment,
+                addedApplicants,
+                alreadyPresentApplicants
+            });
+        }
 
     } catch (error) {
-        return res.status(500).json({ success: false, message: error.message })
+        console.error("Update Recruitment Error:", error);
+        if (error.name === 'CastError') {
+            return res.status(400).json({ success: false, message: "Invalid Recruitment ID format" });
+        }
+        return res.status(500).json({ success: false, message: "Internal server error during recruitment update." })
     }
 }
 

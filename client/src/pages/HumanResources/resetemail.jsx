@@ -1,51 +1,74 @@
-import { ResetVerifyEmailPage } from "../common/verify-email"
-import { SignIn } from "../../components/common/sign-in.jsx"
-import { useSelector, useDispatch } from "react-redux"
-import { useState, useEffect, useRef } from "react"
-import { useNavigate } from "react-router-dom"
-import LoadingBar from 'react-top-loading-bar'
-import { CommonStateHandler } from "../../utils/commonhandler.js"
-import { HandleGetHumanResources, HandlePostHumanResources } from "../../redux/Thunks/HRThunk.js"
-export const ResetHRVerifyEmailPage = () => {
-    const HRState = useSelector((state) => state.HRReducer)
-    const dispatch = useDispatch()
-    const navigate = useNavigate()
-    const loadingbar = useRef(null)
-    const [emailvalue, setemailvalue] = useState({
-        email: ""
-    })
+import React, { useState, useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import LoadingBar from 'react-top-loading-bar';
+import { ResetEmailConfirmaction as PresentationalResetVerifyEmailPage } from "../../components/common/reset-email-confirm.jsx";
+import { HandlePostHumanResources } from "../../redux/Thunks/HRThunk.js";
 
-    const handleverifybutton = () => {
-        loadingbar.current.continuousStart();
-        dispatch(HandlePostHumanResources({ apiroute: "RESEND_VERIFY_EMAIL", data: emailvalue })) 
-    }
+const CommonStateHandler = (state, setState, event) => {
+    const { name, value } = event.target;
+    setState(prevState => ({
+        ...prevState,
+        [name]: value
+    }));
+};
+
+export const ResetHRVerifyEmailPage = () => {
+    const [emailvalue, setemailvalue] = useState({ email: "" });
+    const loadingbar = useRef(null);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const HRState = useSelector(state => state.HRReducer);
 
     const handleverifyemail = (event) => {
-        CommonStateHandler(emailvalue, setemailvalue, event)
-    }
+        CommonStateHandler(emailvalue, setemailvalue, event);
+    };
 
-    if (HRState.error.status) {
-        loadingbar.current.complete()
-    }
+    const handleverifybutton = () => {
+        if (loadingbar.current) {
+            loadingbar.current.continuousStart();
+        }
+        dispatch(HandlePostHumanResources({ apiroute: "RESEND_VERIFY_EMAIL", data: emailvalue }));
+    };
 
     useEffect(() => {
-        if (HRState.isVerified) {
-            loadingbar.current.complete()
-            navigate("/auth/HR/dashboard")
+        if (HRState && HRState.error && HRState.error.status) {
+            if (loadingbar.current) {
+                loadingbar.current.complete();
+            }
+        }
+    }, [HRState && HRState.error]);
+
+    useEffect(() => {
+        if (HRState && HRState.isVerified) {
+            if (loadingbar.current) {
+                loadingbar.current.complete();
+            }
+            navigate("/HR/dashboard/dashboard-data");
         }
 
-        if (HRState.isVerifiedEmailAvailable) {
-            loadingbar.current.complete()
-            navigate("/auth/HR/verify-email")
+        if (HRState && HRState.isVerifiedEmailAvailable) {
+            if (loadingbar.current) {
+                loadingbar.current.complete();
+            }
+            navigate("/auth/HR/verify-email");
         }
-    }, [HRState.isVerified, HRState.isVerifiedEmailAvailable])
+    }, [HRState && HRState.isVerified, HRState && HRState.isVerifiedEmailAvailable, navigate]);
 
-    console.log(HRState)
+    console.log(HRState);
 
     return (
         <>
             <LoadingBar ref={loadingbar} />
-            <ResetVerifyEmailPage handleverifybutton={handleverifybutton} handleverifyemail={handleverifyemail} emailvalue={emailvalue.email} targetstate={HRState}/>
+            {PresentationalResetVerifyEmailPage && HRState && emailvalue &&
+                <PresentationalResetVerifyEmailPage 
+                    handleverifybutton={handleverifybutton} 
+                    handleverifyemail={handleverifyemail} 
+                    emailvalue={emailvalue.email} 
+                    targetstate={HRState}
+                />
+            }
         </>
-    )
-}
+    );
+};

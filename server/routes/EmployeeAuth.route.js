@@ -1,27 +1,38 @@
 import express from 'express'
-import { HandleEmplyoeeSignup, HandleEmplyoeeVerifyEmail, HandleEmplyoeeLogout, HandleEmplyoeeLogin, HandleEmplyoeeForgotPassword, HandleEmplyoeeSetPassword, HandleResetEmplyoeeVerifyEmail, HandleEmployeeCheck, HandleEmployeeCheckVerifyEmail } from '../controllers/EmplyoeeAuth.controller.js'
+// Correct the controller import path and function names
+import { HandleEmployeeSignup, HandleEmployeeVerifyEmail, HandleEmployeeLogout, HandleEmployeeLogin, HandleEmployeeForgotPassword, HandleEmployeeSetPassword, HandleResetEmployeeVerifyEmail, HandleEmployeeCheck, HandleEmployeeCheckVerifyEmail } from '../controllers/EmployeeAuth.controller.js' 
 import { VerifyEmployeeToken } from '../middlewares/Auth.middleware.js'
 import { VerifyhHRToken } from '../middlewares/Auth.middleware.js'
 import { RoleAuthorization } from '../middlewares/RoleAuth.middleware.js'
 
 const router = express.Router()
 
-router.post("/signup", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleEmplyoeeSignup)
+// Use corrected function name
+router.post("/signup", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleEmployeeSignup)
 
-router.post("/verify-email", VerifyEmployeeToken, HandleEmplyoeeVerifyEmail)
+// Use corrected function name
+router.post("/verify-email", VerifyEmployeeToken, HandleEmployeeVerifyEmail)
 
-router.post("/resend-verify-email", VerifyEmployeeToken, HandleResetEmplyoeeVerifyEmail)
+// Use corrected function name
+router.post("/resend-verify-email", VerifyEmployeeToken, HandleResetEmployeeVerifyEmail)
 
-router.post("/login", HandleEmplyoeeLogin)
+// Use corrected function name
+router.post("/login", HandleEmployeeLogin)
 
+// Use corrected function name (already correct)
 router.get("/check-login", VerifyEmployeeToken, HandleEmployeeCheck)
 
-router.post("/logout", HandleEmplyoeeLogout)
+// Use corrected function name
+router.post("/logout", HandleEmployeeLogout)
 
-router.post("/forgot-password", VerifyEmployeeToken, HandleEmplyoeeForgotPassword)
+// Remove VerifyEmployeeToken middleware - user won't be logged in
+// Use corrected function name
+router.post("/forgot-password", HandleEmployeeForgotPassword)
 
-router.post("/reset-password/:token", HandleEmplyoeeSetPassword)
+// Use corrected function name
+router.post("/reset-password/:token", HandleEmployeeSetPassword)
 
+// Use corrected function name (already correct)
 router.get("/check-verify-email", VerifyEmployeeToken, HandleEmployeeCheckVerifyEmail) 
 
 
