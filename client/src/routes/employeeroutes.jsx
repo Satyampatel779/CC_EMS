@@ -1,4 +1,5 @@
 import { EmployeeLogin } from "../pages/Employees/emplyoeelogin.jsx"
+import NewEmployeeLogin from "../pages/Employees/NewEmployeeLogin.jsx"
 import { EmployeeDashboard } from "../pages/Employees/employeedashboard.jsx"
 import EmployeeDashboardLayout from "../pages/Employees/EmployeeDashboardLayout.jsx"
 import EmployeeDashboardOverview from "../pages/Employees/Dashboard Pages/EmployeeDashboardOverview.jsx"
@@ -10,6 +11,7 @@ import EmployeeRequests from "../pages/Employees/Dashboard Pages/EmployeeRequest
 import CompanyCalendar from "../pages/Employees/Dashboard Pages/CompanyCalendar.jsx"
 import MyDocuments from "../pages/Employees/Dashboard Pages/MyDocuments.jsx"
 import { ProtectedRoutes } from "./protectedroutes.jsx"
+import NewProtectedRoutes from "./NewProtectedRoutes.jsx"
 import { ForgotPassword } from "../pages/Employees/forgotpassword.jsx"
 import { ResetEmailConfirm } from "../pages/Employees/resetemailconfirm.jsx"
 import { ResetPassword } from "../pages/Employees/resetpassword.jsx"
@@ -23,7 +25,7 @@ export const EmployeeRoutes = [
     },
     {
         path: "/auth/employee/login",
-        element: <EmployeeLogin />
+        element: <NewEmployeeLogin />
     },
     // {
     //     path: "/auth/employee/verify-email", 
@@ -31,11 +33,11 @@ export const EmployeeRoutes = [
     // },
     {
         path: "/auth/employee/employee-dashboard",
-        element: <ProtectedRoutes> <EmployeeDashboard /> </ProtectedRoutes>
+        element: <NewProtectedRoutes> <EmployeeDashboard /> </NewProtectedRoutes>
     },
     {
         path: "/auth/employee/dashboard",
-        element: <ProtectedRoutes> <EmployeeDashboardLayout /> </ProtectedRoutes>,
+        element: <NewProtectedRoutes> <EmployeeDashboardLayout /> </NewProtectedRoutes>,
         children: [
             {
                 index: true,

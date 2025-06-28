@@ -186,7 +186,7 @@ export const HREmployeesPageAsyncReducer = (builder, thunk) => {
             state.success = action.payload.success
             state.fetchData = false
         }
-        else if (action.payload.type === "EmployeeCreate" || action.payload.type === "EmployeeDelete") {
+        else if (action.payload.type === "EmployeeCreate" || action.payload.type === "EmployeeDelete" || action.payload.type === "EmployeeUpdate") {
             state.isLoading = false;
             state.error.status = false;
             state.error.message = null

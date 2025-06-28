@@ -19,9 +19,12 @@ const EmployeeDashboardLayout = () => {
         <div className="employee-dashboard-container flex">
             <div className="employee-dashboard-sidebar">
                 <SidebarProvider>
-                    <EmployeeSidebar />
-                    <div className="sidebar-container min-[250px]:absolute md:relative">
-                        <SidebarTrigger />
+                    {/* Single child wrapper for SidebarProvider */}
+                    <div>
+                        <EmployeeSidebar />
+                        <div className="sidebar-container min-[250px]:absolute md:relative">
+                            <SidebarTrigger />
+                        </div>
                     </div>
                 </SidebarProvider>
             </div>

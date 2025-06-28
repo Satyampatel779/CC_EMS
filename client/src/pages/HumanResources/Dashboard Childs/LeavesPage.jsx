@@ -157,12 +157,11 @@ export function LeavesPage() {
       return dateString;
     }
   };
-
   const getStatusClass = (status) => {
     switch (status) {
-      case "Approved": return "bg-green-100 text-green-800 border-green-200";
-      case "Rejected": return "bg-red-100 text-red-800 border-red-200";
-      default: return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "Approved": return "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800";
+      case "Rejected": return "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800";
+      default: return "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800";
     }
   };
 
@@ -235,33 +234,31 @@ export function LeavesPage() {
   const pendingCount = leaveRequests.filter(leave => leave.status === "Pending").length;
   const approvedCount = leaveRequests.filter(leave => leave.status === "Approved").length;
   const rejectedCount = leaveRequests.filter(leave => leave.status === "Rejected").length;
-
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Employee Leave Management</h1>
+    <div className="container mx-auto p-4 bg-white dark:bg-neutral-900 min-h-screen">
+      <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-neutral-100">Employee Leave Management</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card className="p-4 bg-yellow-50 border border-yellow-200">
-          <h3 className="text-lg font-medium text-yellow-800">Pending</h3>
-          <p className="text-3xl font-bold text-yellow-900">{pendingCount}</p>
-          <p className="text-sm text-yellow-600">Awaiting your approval</p>
+        <Card className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
+          <h3 className="text-lg font-medium text-yellow-800 dark:text-yellow-200">Pending</h3>
+          <p className="text-3xl font-bold text-yellow-900 dark:text-yellow-100">{pendingCount}</p>
+          <p className="text-sm text-yellow-600 dark:text-yellow-300">Awaiting your approval</p>
         </Card>
-        <Card className="p-4 bg-green-50 border border-green-200">
-          <h3 className="text-lg font-medium text-green-800">Approved</h3>
-          <p className="text-3xl font-bold text-green-900">{approvedCount}</p>
-          <p className="text-sm text-green-600">Successfully approved leaves</p>
+        <Card className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+          <h3 className="text-lg font-medium text-green-800 dark:text-green-200">Approved</h3>
+          <p className="text-3xl font-bold text-green-900 dark:text-green-100">{approvedCount}</p>          <p className="text-sm text-green-600 dark:text-green-300">Successfully approved leaves</p>
         </Card>
-        <Card className="p-4 bg-red-50 border border-red-200">
-          <h3 className="text-lg font-medium text-red-800">Rejected</h3>
-          <p className="text-3xl font-bold text-red-900">{rejectedCount}</p>
-          <p className="text-sm text-red-600">Rejected leave requests</p>
+        <Card className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+          <h3 className="text-lg font-medium text-red-800 dark:text-red-200">Rejected</h3>
+          <p className="text-3xl font-bold text-red-900 dark:text-red-100">{rejectedCount}</p>
+          <p className="text-sm text-red-600 dark:text-red-300">Rejected leave requests</p>
         </Card>
       </div>
 
       <div className="flex justify-between mb-6">
         <div>
-          <h2 className="text-lg font-semibold">Leave Requests</h2>
-          <p className="text-gray-600">Manage employee leave requests</p>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-neutral-100">Leave Requests</h2>
+          <p className="text-gray-600 dark:text-neutral-400">Manage employee leave requests</p>
         </div>
       </div>
 
@@ -269,20 +266,18 @@ export function LeavesPage() {
         <div className="relative">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
             <Search className="h-5 w-5 text-gray-400" />
-          </div>
-          <input
+          </div>          <input
             type="text"
             placeholder="Search employee, leave type..."
-            className="pl-10 pr-4 py-2 border rounded-md w-full md:w-80"
+            className="pl-10 pr-4 py-2 border rounded-md w-full md:w-80 bg-white dark:bg-neutral-800 border-gray-300 dark:border-neutral-600 text-gray-900 dark:text-neutral-100 placeholder-gray-500 dark:placeholder-neutral-400"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />
-        </div>
-        <div className="flex gap-2">
+        </div>        <div className="flex gap-2">
           <select
             value={filterStatus}
             onChange={e => setFilterStatus(e.target.value)}
-            className="px-4 py-2 border rounded-md"
+            className="px-4 py-2 border rounded-md bg-white dark:bg-neutral-800 border-gray-300 dark:border-neutral-600 text-gray-900 dark:text-neutral-100"
           >
             <option value="All">All Status</option>
             <option value="Pending">Pending</option>
@@ -296,42 +291,39 @@ export function LeavesPage() {
             Export
           </Button>
         </div>
-      </div>
-
-      <Card className="overflow-hidden">
+      </div>      <Card className="overflow-hidden bg-white dark:bg-neutral-800 border-gray-200 dark:border-neutral-700">
         {isLoading ? (
-          <div className="p-4 text-center">Loading leave requests...</div>
+          <div className="p-4 text-center text-gray-600 dark:text-neutral-400">Loading leave requests...</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
+              <thead className="bg-gray-50 dark:bg-neutral-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Leave Type</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-neutral-300 uppercase tracking-wider">Employee</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-neutral-300 uppercase tracking-wider">Leave Type</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-neutral-300 uppercase tracking-wider">Duration</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-neutral-300 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-neutral-300 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-neutral-800 divide-y divide-gray-200 dark:divide-neutral-700">
                 {filteredLeaves.length > 0 ? (
                   filteredLeaves.map((leave) => (
-                    <tr key={leave._id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                    <tr key={leave._id}>                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div>
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-gray-900 dark:text-neutral-100">
                               {leave.employee?.firstname} {leave.employee?.lastname}
                             </div>
-                            <div className="text-sm text-gray-500">{leave.employee?.department}</div>
+                            <div className="text-sm text-gray-500 dark:text-neutral-400">{leave.employee?.department}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{leave.title}</div>
+                        <div className="text-sm text-gray-900 dark:text-neutral-100">{leave.title}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm text-gray-900 dark:text-neutral-100">
                           {formatDate(leave.startdate) === formatDate(leave.enddate) 
                             ? formatDate(leave.startdate) 
                             : `${formatDate(leave.startdate)} to ${formatDate(leave.enddate)}`}
@@ -341,11 +333,10 @@ export function LeavesPage() {
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(leave.status)}`}>
                           {leave.status}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      </td>                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button 
                           onClick={() => viewDetails(leave._id)} 
-                          className="text-blue-600 hover:text-blue-900 mr-3"
+                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3 transition-colors duration-200"
                         >
                           View
                         </button>
@@ -353,13 +344,13 @@ export function LeavesPage() {
                           <>
                             <button 
                               onClick={() => handleApprove(leave._id)} 
-                              className="text-green-600 hover:text-green-900 mr-3"
+                              className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-3 transition-colors duration-200"
                             >
                               Approve
                             </button>
                             <button 
                               onClick={() => handleReject(leave._id)} 
-                              className="text-red-600 hover:text-red-900"
+                              className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200"
                             >
                               Reject
                             </button>
@@ -368,9 +359,8 @@ export function LeavesPage() {
                       </td>
                     </tr>
                   ))
-                ) : (
-                  <tr>
-                    <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
+                ) : (                  <tr>
+                    <td colSpan="5" className="px-6 py-4 text-center text-gray-500 dark:text-neutral-400">
                       {searchTerm || filterStatus !== "All" 
                         ? "No matching leave requests found" 
                         : "No leave requests found"}

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,124 +26,171 @@ import {
   Calendar, 
   Clock, 
   FileText, 
-  MessageSquare 
+  MessageSquare,
+  Edit,
+  AlertCircle,
+  X
 } from 'lucide-react';
+import { 
+  fetchEmployeeRequests, 
+  createRequest, 
+  updateRequestContent,
+  clearError,
+  clearEmployeeRequests
+} from '../../../redux/Slices/RequestManagementSlice';
 
 const EmployeeRequests = () => {
-  const [requests, setRequests] = useState([]);
+  const dispatch = useDispatch();
+  const { 
+    employeeRequests: requests, 
+    createLoading, 
+    updateLoading, 
+    loading, 
+    error 
+  } = useSelector(state => state.requestManagementReducer);
+    // Get employee data from auth or employee state
+  const employee = useSelector(state => state.employeeAuthReducer?.employee);
+  const employeeId = employee?._id;
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [editingRequest, setEditingRequest] = useState(null);
+  const [toast, setToast] = useState(null);
   const [newRequest, setNewRequest] = useState({
-    type: '',
-    subject: '',
-    description: '',
-    priority: 'medium'
-  });
-
-  // Mock data for demonstration
-  const mockRequests = [
-    {
-      id: 1,
-      type: 'IT Support',
-      subject: 'Password Reset Request',
-      description: 'Need to reset my email password',
-      status: 'pending',
-      priority: 'high',
-      submittedDate: '2024-06-01',
-      responseDate: null,
-      response: null
-    },
-    {
-      id: 2,
-      type: 'HR Support',
-      subject: 'Certificate Request',
-      description: 'Need employment certificate for bank loan',
-      status: 'approved',
-      priority: 'medium',
-      submittedDate: '2024-05-28',
-      responseDate: '2024-05-30',
-      response: 'Certificate has been prepared and will be available for pickup.'
-    },
-    {
-      id: 3,
-      type: 'Facilities',
-      subject: 'Desk Change Request',
-      description: 'Request to change desk location due to noise issues',
-      status: 'rejected',
-      priority: 'low',
-      submittedDate: '2024-05-25',
-      responseDate: '2024-05-26',
-      response: 'No available desks in the requested area at this time.'
+    requesttitle: '',
+    requestconent: '',
+    priority: 'Medium',
+    requestType: 'General'
+  });  useEffect(() => {
+    if (employeeId) {
+      dispatch(fetchEmployeeRequests(employeeId));
     }
-  ];
-
-  useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setRequests(mockRequests);
-      setLoading(false);
-    }, 1000);
+    
+    return () => {
+      dispatch(clearEmployeeRequests());
+    };  }, [dispatch, employeeId]);
+  // Toast notification system
+  const showToast = useCallback((message, type = 'info') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 5000);
   }, []);
 
+  useEffect(() => {
+    if (error) {
+      showToast(error, 'error');
+      dispatch(clearError());
+    }
+  }, [error, dispatch, showToast]);
   const handleSubmitRequest = async (e) => {
+    e.preventDefault();
+      try {
+      const requestData = {
+        requesttitle: newRequest.requesttitle,
+        requestconent: newRequest.requestconent,
+        employeeID: employeeId,
+        priority: newRequest.priority,
+        requestType: newRequest.requestType
+      };
+
+      await dispatch(createRequest(requestData)).unwrap();
+      
+      setNewRequest({
+        requesttitle: '',
+        requestconent: '',
+        priority: 'Medium',
+        requestType: 'General'
+      });
+      setIsDialogOpen(false);
+      showToast('Request submitted successfully!', 'success');
+    } catch (error) {
+      console.error('Error submitting request:', error);
+      showToast('Failed to submit request. Please try again.', 'error');
+    }
+  };
+  const handleEditRequest = async (e) => {
     e.preventDefault();
     
     try {
-      // Here you would make an API call to submit the request
       const requestData = {
-        ...newRequest,
-        submittedDate: new Date().toISOString().split('T')[0],
-        status: 'pending',
-        id: Date.now() // Mock ID
+        requestID: editingRequest._id,
+        requesttitle: newRequest.requesttitle,
+        requestconent: newRequest.requestconent,
+        priority: newRequest.priority,
+        requestType: newRequest.requestType
       };
 
-      setRequests([requestData, ...requests]);
+      await dispatch(updateRequestContent(requestData)).unwrap();
+      
+      setEditingRequest(null);
       setNewRequest({
-        type: '',
-        subject: '',
-        description: '',
-        priority: 'medium'
+        requesttitle: '',
+        requestconent: '',
+        priority: 'Medium',
+        requestType: 'General'
       });
       setIsDialogOpen(false);
+      showToast('Request updated successfully!', 'success');
     } catch (error) {
-      console.error('Error submitting request:', error);
+      console.error('Error updating request:', error);
+      showToast('Failed to update request. Please try again.', 'error');
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
+  const openEditDialog = (request) => {
+    setEditingRequest(request);
+    setNewRequest({
+      requesttitle: request.requesttitle,
+      requestconent: request.requestconent,
+      priority: request.priority || 'Medium',
+      requestType: request.requestType || 'General'
+    });
+    setIsDialogOpen(true);
+  };
+
+  const resetDialog = () => {
+    setEditingRequest(null);
+    setNewRequest({
+      requesttitle: '',
+      requestconent: '',
+      priority: 'Medium',
+      requestType: 'General'
+    });
+    setIsDialogOpen(false);
+  };  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200';
       case 'approved':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200';
+      case 'denied':
       case 'rejected':
-        return 'bg-red-100 text-red-800';
-      case 'in-progress':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200';
+      case 'in review':
+        return 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200';
+      case 'closed':
+        return 'bg-gray-100 dark:bg-neutral-700 text-gray-800 dark:text-neutral-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 dark:bg-neutral-700 text-gray-800 dark:text-neutral-300';
     }
   };
 
   const getPriorityColor = (priority) => {
-    switch (priority) {
+    switch (priority?.toLowerCase()) {
       case 'high':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200';
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200';
       case 'low':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 dark:bg-neutral-700 text-gray-800 dark:text-neutral-300';
     }
   };
 
   const filteredRequests = requests.filter(request => {
-    const matchesSearch = request.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         request.type.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || request.status === filterStatus;
+    const matchesSearch = request.requesttitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         request.requestType?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || request.status?.toLowerCase() === filterStatus.toLowerCase();
     return matchesSearch && matchesStatus;
   });
 
@@ -172,17 +220,18 @@ const EmployeeRequests = () => {
               <Plus className="h-4 w-4" />
               New Request
             </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
+          </DialogTrigger>          <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Submit New Request</DialogTitle>
+              <DialogTitle>
+                {editingRequest ? 'Edit Request' : 'Submit New Request'}
+              </DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmitRequest} className="space-y-4">
+            <form onSubmit={editingRequest ? handleEditRequest : handleSubmitRequest} className="space-y-4">
               <div>
-                <Label htmlFor="type">Request Type</Label>
+                <Label htmlFor="requestType">Request Type</Label>
                 <Select 
-                  value={newRequest.type} 
-                  onValueChange={(value) => setNewRequest({...newRequest, type: value})}
+                  value={newRequest.requestType} 
+                  onValueChange={(value) => setNewRequest({...newRequest, requestType: value})}
                   required
                 >
                   <SelectTrigger>
@@ -198,11 +247,11 @@ const EmployeeRequests = () => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="subject">Subject</Label>
+                <Label htmlFor="requesttitle">Subject</Label>
                 <Input
-                  id="subject"
-                  value={newRequest.subject}
-                  onChange={(e) => setNewRequest({...newRequest, subject: e.target.value})}
+                  id="requesttitle"
+                  value={newRequest.requesttitle}
+                  onChange={(e) => setNewRequest({...newRequest, requesttitle: e.target.value})}
                   placeholder="Brief description of your request"
                   required
                 />
@@ -217,29 +266,36 @@ const EmployeeRequests = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="Low">Low</SelectItem>
+                    <SelectItem value="Medium">Medium</SelectItem>
+                    <SelectItem value="High">High</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="requestconent">Description</Label>
                 <Textarea
-                  id="description"
-                  value={newRequest.description}
-                  onChange={(e) => setNewRequest({...newRequest, description: e.target.value})}
+                  id="requestconent"
+                  value={newRequest.requestconent}
+                  onChange={(e) => setNewRequest({...newRequest, requestconent: e.target.value})}
                   placeholder="Detailed description of your request"
                   rows={4}
                   required
                 />
               </div>
               <div className="flex gap-2 pt-4">
-                <Button type="submit" className="flex-1">Submit Request</Button>
+                <Button 
+                  type="submit" 
+                  className="flex-1" 
+                  disabled={createLoading || updateLoading}
+                >
+                  {(createLoading || updateLoading) ? 'Processing...' : 
+                   editingRequest ? 'Update Request' : 'Submit Request'}
+                </Button>
                 <Button 
                   type="button" 
                   variant="outline" 
-                  onClick={() => setIsDialogOpen(false)}
+                  onClick={resetDialog}
                   className="flex-1"
                 >
                   Cancel
@@ -302,9 +358,8 @@ const EmployeeRequests = () => {
                 <Calendar className="h-5 w-5 text-red-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Rejected</p>
-                <p className="text-xl font-semibold">
-                  {requests.filter(r => r.status === 'rejected').length}
+                <p className="text-sm text-gray-600">Denied/Rejected</p>                <p className="text-xl font-semibold">
+                  {requests.filter(r => r.status?.toLowerCase() === 'denied' || r.status?.toLowerCase() === 'rejected').length}
                 </p>
               </div>
             </div>
@@ -328,36 +383,51 @@ const EmployeeRequests = () => {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="all">All Status</SelectItem>            <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-            <SelectItem value="in-progress">In Progress</SelectItem>
+            <SelectItem value="denied">Denied</SelectItem>
+            <SelectItem value="in review">In Review</SelectItem>
+            <SelectItem value="closed">Closed</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {/* Requests List */}
-      <div className="space-y-4">
-        {filteredRequests.map((request) => (
-          <Card key={request.id}>
+      <div className="space-y-4">        {filteredRequests.map((request) => (
+          <Card key={request._id}>
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <CardTitle className="text-lg">{request.subject}</CardTitle>
+                  <CardTitle className="text-lg">{request.requesttitle}</CardTitle>
                   <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <span>{request.type}</span>
+                    <span>{request.requestType}</span>
                     <span>•</span>
-                    <span>Submitted on {new Date(request.submittedDate).toLocaleDateString()}</span>
+                    <span>Submitted on {new Date(request.createdAt).toLocaleDateString()}</span>
+                    {request.createdBy === 'HR' && (
+                      <>
+                        <span>•</span>
+                        <span className="text-blue-600 font-medium">Created by HR</span>
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge className={getPriorityColor(request.priority)}>
-                    {request.priority}
+                    {request.priority || 'Medium'}
                   </Badge>
                   <Badge className={getStatusColor(request.status)}>
                     {request.status}
                   </Badge>
+                  {request.status?.toLowerCase() === 'pending' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openEditDialog(request)}
+                      className="h-6 px-2"
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                  )}
                 </div>
               </div>
             </CardHeader>
@@ -365,19 +435,26 @@ const EmployeeRequests = () => {
               <div className="space-y-3">
                 <div>
                   <p className="font-medium text-sm text-gray-700">Description:</p>
-                  <p className="text-gray-600">{request.description}</p>
+                  <p className="text-gray-600">{request.requestconent}</p>
                 </div>
-                {request.response && (
+                {request.hrComments && (
                   <div>
-                    <p className="font-medium text-sm text-gray-700">Response:</p>
+                    <p className="font-medium text-sm text-gray-700">HR Response:</p>
                     <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="text-gray-600">{request.response}</p>
-                      {request.responseDate && (
+                      <p className="text-gray-600">{request.hrComments}</p>
+                      {request.updatedAt && (
                         <p className="text-xs text-gray-500 mt-2">
-                          Responded on {new Date(request.responseDate).toLocaleDateString()}
+                          Updated on {new Date(request.updatedAt).toLocaleDateString()}
                         </p>
                       )}
                     </div>
+                  </div>
+                )}
+                {request.status?.toLowerCase() === 'closed' && request.closedDate && (
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-sm text-gray-600">
+                      <strong>Closed on:</strong> {new Date(request.closedDate).toLocaleDateString()}
+                    </p>
                   </div>
                 )}
               </div>

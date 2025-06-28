@@ -1,5 +1,8 @@
-import { Attendance } from "../models/Attendance.model.js"
+import Attendance from "../models/Attendance.model.js"
 import { Employee } from "../models/Employee.model.js"
+
+// Legacy attendance functions - these should be updated or removed
+// The new attendance system is handled in the Attendance.route.js file
 
 export const HandleInitializeAttendance = async (req, res) => {
     try {

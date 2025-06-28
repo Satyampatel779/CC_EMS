@@ -5,6 +5,7 @@ import { HRRoutes } from './routes/HRroutes'
 import { initAuth } from './utils/initAuth';
 import { ToastContainer } from 'react-toastify';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import { ThemeProvider } from './context/ThemeContext';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
@@ -22,35 +23,39 @@ function App() {
   }, []);
   
   return (
-    <ErrorBoundary>
-      <Routes>
-        {HRRoutes.map((route, index) => (
-          <Route key={index} path={route.path} element={route.element}>
-            {route.children && route.children.map((childRoute, childIndex) => (
-              <Route key={childIndex} path={childRoute.path} element={childRoute.element} />
-            ))}
-          </Route>
-        ))}
-        {EmployeeRoutes.map((route, index) => (
-          <Route key={index} path={route.path} element={route.element}>
-            {route.children && route.children.map((childRoute, childIndex) => (
-              <Route key={childIndex} path={childRoute.path} element={childRoute.element} />
-            ))}
-          </Route>
-        ))}
-      </Routes>
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
-    </ErrorBoundary>
+    <ThemeProvider>
+      <ErrorBoundary>
+        <Routes>
+          {HRRoutes.map((route, index) => (
+            <Route key={index} path={route.path} element={route.element}>
+              {route.children && route.children.map((childRoute, childIndex) => (
+                <Route key={childIndex} path={childRoute.path} element={childRoute.element} />
+              ))}
+            </Route>
+          ))}
+          {EmployeeRoutes.map((route, index) => (
+            <Route key={index} path={route.path} element={route.element}>
+              {route.children && route.children.map((childRoute, childIndex) => (
+                <Route key={childIndex} path={childRoute.path} element={childRoute.element} />
+              ))}
+            </Route>
+          ))}
+        </Routes>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+          className="dark:bg-neutral-800"
+        />
+      </ErrorBoundary>
+    </ThemeProvider>
   );
 }
 

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMS Real Data Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: white;
+            min-height: 100vh;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+        .stat {
+            font-size: 2em;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+        .loading {
+            color: #fbbf24;
+        }
+        .error {
+            color: #ef4444;
+        }
+        .success {
+            color: #10b981;
+        }
+        button {
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏢 EMS Real Data Test</h1>
+    
+    <div class="card">
+        <h2>📊 Employee Statistics</h2>
+        <div id="employee-stats">
+            <div class="loading">Loading employee data...</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📅 Attendance Statistics</h2>
+        <div id="attendance-stats">
+            <div class="loading">Loading attendance data...</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>🔧 Test Controls</h2>
+        <button onclick="fetchEmployeeData()">Refresh Employee Data</button>
+        <button onclick="fetchAttendanceData()">Refresh Attendance Data</button>
+        <button onclick="fetchAllData()">Refresh All Data</button>
+    </div>
+
+    <div class="card">
+        <h2>📝 API Response Logs</h2>
+        <div id="logs" style="font-family: monospace; font-size: 0.9em; white-space: pre-wrap; max-height: 300px; overflow-y: auto;"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5001';
+        const TEST_API_BASE = 'http://localhost:3001';
+        
+        function log(message) {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logs.textContent += `[${timestamp}] ${message}\n`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(message);
+        }
+
+        async function fetchEmployeeData() {
+            const container = document.getElementById('employee-stats');
+            container.innerHTML = '<div class="loading">Loading employee data...</div>';
+            
+            try {
+                log('🔄 Fetching employee data...');
+                
+                // Try main API first
+                let response;
+                try {
+                    response = await fetch(`${API_BASE}/api/v1/employee/public-all`);
+                } catch (error) {
+                    log('⚠️ Main API failed, trying test server...');
+                    response = await fetch(`${TEST_API_BASE}/api/v1/employee/public-all`);
+                }
+                
+                const data = await response.json();
+                log(`📊 Employee API Response: ${JSON.stringify(data, null, 2)}`);
+                
+                if (data.success) {
+                    container.innerHTML = `
+                        <div class="success">✅ Data loaded successfully</div>
+                        <div class="stat">${data.count || 0}</div>
+                        <div>Total Employees</div>
+                    `;
+                } else {
+                    container.innerHTML = '<div class="error">❌ Failed to load employee data</div>';
+                }
+            } catch (error) {
+                log(`❌ Employee API Error: ${error.message}`);
+                container.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function fetchAttendanceData() {
+            const container = document.getElementById('attendance-stats');
+            container.innerHTML = '<div class="loading">Loading attendance data...</div>';
+            
+            try {
+                log('🔄 Fetching attendance data...');
+                
+                // Try main API first
+                let response;
+                try {
+                    response = await fetch(`${API_BASE}/api/v1/attendance/public-stats`);
+                } catch (error) {
+                    log('⚠️ Main API failed, trying test server...');
+                    response = await fetch(`${TEST_API_BASE}/api/v1/attendance/public-stats`);
+                }
+                
+                const data = await response.json();
+                log(`📅 Attendance API Response: ${JSON.stringify(data, null, 2)}`);
+                
+                if (data.success && data.data) {
+                    container.innerHTML = `
+                        <div class="success">✅ Data loaded successfully</div>
+                        <div class="stat">${data.data.attendanceRate || 0}%</div>
+                        <div>Attendance Rate Today</div>
+                        <div style="margin-top: 10px; font-size: 0.9em;">
+                            Present: ${data.data.presentToday || 0} / ${data.data.totalEmployeesChecked || 0}
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = '<div class="error">❌ Failed to load attendance data</div>';
+                }
+            } catch (error) {
+                log(`❌ Attendance API Error: ${error.message}`);
+                container.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function fetchAllData() {
+            log('🔄 Refreshing all data...');
+            await Promise.all([fetchEmployeeData(), fetchAttendanceData()]);
+            log('✅ All data refreshed');
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Page loaded, fetching initial data...');
+            fetchAllData();
+        });
+    </script>
+</body>
+</html>

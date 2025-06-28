@@ -47,9 +47,12 @@ export function AttendancesPage() {
         setLoading(true);
         
         const [attendancesRes, employeesRes] = await Promise.all([
-          axios.get(AttendanceEndPoints.GETALL),
-          axios.get(HREmployeesPageEndPoints.GETALL)
+          axios.get('/api/v1/attendance'),
+          axios.get('/api/v1/employee/all')
         ]);
+        
+        console.log('Attendances response:', attendancesRes.data);
+        console.log('Employees response:', employeesRes.data);
         
         setAttendances(attendancesRes.data || []);
         setEmployees(employeesRes.data?.data || []);
@@ -66,13 +69,15 @@ export function AttendancesPage() {
 
   // Filter attendances based on search query, selected date, employee, and status
   const filteredAttendances = attendances.filter(attendance => {
-    const employee = employees.find(e => e._id === attendance.employeeId);
-    const employeeName = employee ? `${employee.firstname} ${employee.lastname}` : '';
+    // Get employee data from populated field or find in employees array
+    const employee = attendance.employeeId || employees.find(e => e._id === attendance.employeeId);
+    const employeeName = employee ? `${employee.firstname || ''} ${employee.lastname || ''}`.trim() : 'Unknown Employee';
     const attendanceDate = new Date(attendance.date).toLocaleDateString();
     const selectedDateStr = date ? date.toLocaleDateString() : '';
-      const matchesSearch = employeeName.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesSearch = employeeName.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesDate = !date || attendanceDate === selectedDateStr;
-    const matchesEmployee = selectedEmployee === 'all' || attendance.employeeId === selectedEmployee;
+    const matchesEmployee = selectedEmployee === 'all' || attendance.employeeId === selectedEmployee || attendance.employeeId?._id === selectedEmployee;
     const matchesStatus = selectedStatus === 'all' || attendance.status === selectedStatus;
     
     return matchesSearch && matchesDate && matchesEmployee && matchesStatus;
@@ -106,11 +111,12 @@ export function AttendancesPage() {
   useEffect(() => {
     calculateWorkHours();
   }, [newAttendance.checkInTime, newAttendance.checkOutTime]);
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     try {
-      const response = await axios.post(AttendanceEndPoints.CREATE, newAttendance);
+      const response = await axios.post('/api/v1/attendance', newAttendance);
       
       setAttendances([...attendances, response.data]);
       setIsModalOpen(false);
@@ -130,15 +136,15 @@ export function AttendancesPage() {
       toast.error(error.response?.data?.message || 'Failed to add attendance record');
     }
   };
-  const handleDelete = async (id) => {
+  const handleDelete = async (attendanceId) => {
     if (window.confirm('Are you sure you want to delete this attendance record?')) {
       try {
-        await axios.delete(AttendanceEndPoints.DELETE(id));
-        setAttendances(attendances.filter(a => a._id !== id));
+        await axios.delete(`/api/v1/attendance/${attendanceId}`);
+        setAttendances(attendances.filter(a => a._id !== attendanceId));
         toast.success('Attendance record deleted successfully');
       } catch (error) {
         console.error('Error deleting attendance:', error);
-        toast.error(error.response?.data?.message || 'Failed to delete attendance record');
+        toast.error('Failed to delete attendance record');
       }
     }
   };
@@ -146,28 +152,27 @@ export function AttendancesPage() {
   const getStatusColor = (status) => {
     switch (status) {
       case 'Present':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
       case 'Absent':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
       case 'Late':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
       case 'Half Day':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
       case 'Leave':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
     }
   };
-
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return <div className="flex justify-center items-center h-screen bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100">Loading...</div>;
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-white dark:bg-neutral-900 min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Attendance Management</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-neutral-100">Attendance Management</h1>
         
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogTrigger asChild>
@@ -288,39 +293,38 @@ export function AttendancesPage() {
           </DialogContent>
         </Dialog>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="p-4 bg-white rounded-lg shadow">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="p-4 bg-white dark:bg-neutral-800 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Search Employee</label>
+            <label className="text-sm font-medium text-gray-900 dark:text-neutral-100">Search Employee</label>
             <Input
               type="text"
               placeholder="Search by name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-600 text-gray-900 dark:text-neutral-100"
             />
           </div>
         </div>
         
-        <div className="p-4 bg-white rounded-lg shadow">
+        <div className="p-4 bg-white dark:bg-neutral-800 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Filter by Date</label>
+            <label className="text-sm font-medium text-gray-900 dark:text-neutral-100">Filter by Date</label>
             <Input 
                 type="date"
                 value={date ? format(date, 'yyyy-MM-dd') : ''}
                 onChange={(e) => setDate(e.target.value ? new Date(e.target.value) : null)}
-                className="border rounded-md"
+                className="border rounded-md bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-600 text-gray-900 dark:text-neutral-100"
                 />
           </div>
         </div>
         
-        <div className="p-4 bg-white rounded-lg shadow space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Filter by Employee</label>            <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
-              <SelectTrigger>
+        <div className="p-4 bg-white dark:bg-neutral-800 rounded-lg shadow border border-gray-200 dark:border-neutral-700 space-y-4">          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-900 dark:text-neutral-100">Filter by Employee</label>            <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+              <SelectTrigger className="bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-600 text-gray-900 dark:text-neutral-100">
                 <SelectValue placeholder="All Employees" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-600">
                 <SelectItem value="all">All Employees</SelectItem>
                 {employees.map(employee => (
                   <SelectItem key={employee._id} value={employee._id}>
@@ -332,11 +336,11 @@ export function AttendancesPage() {
           </div>
           
           <div className="space-y-2">
-            <label className="text-sm font-medium">Filter by Status</label>            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger>
+            <label className="text-sm font-medium text-gray-900 dark:text-neutral-100">Filter by Status</label>            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <SelectTrigger className="bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-600 text-gray-900 dark:text-neutral-100">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-600">
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="Present">Present</SelectItem>
                 <SelectItem value="Absent">Absent</SelectItem>
@@ -346,9 +350,10 @@ export function AttendancesPage() {
               </SelectContent>
             </Select>
           </div>
-          
-          <Button 
-            variant="outline"            onClick={() => {
+            <Button 
+            variant="outline"
+            className="border-gray-300 dark:border-neutral-600 text-gray-700 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-700"
+            onClick={() => {
               setSearchQuery('');
               setDate(null);
               setSelectedEmployee('all');
@@ -359,50 +364,50 @@ export function AttendancesPage() {
           </Button>
         </div>
       </div>
-      
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow border border-gray-200 dark:border-neutral-700 overflow-hidden">
         <Table>
-          <TableCaption>
+          <TableCaption className="text-gray-600 dark:text-neutral-400">
             {filteredAttendances.length === 0 
               ? "No attendance records found" 
               : `Showing ${filteredAttendances.length} attendance records`}
           </TableCaption>
           <TableHeader>
-            <TableRow>
-              <TableHead>Employee Name</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Check-in</TableHead>
-              <TableHead>Check-out</TableHead>
-              <TableHead>Work Hours</TableHead>
-              <TableHead>Comments</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+            <TableRow className="bg-gray-50 dark:bg-neutral-700 border-gray-200 dark:border-neutral-600">
+              <TableHead className="text-gray-900 dark:text-neutral-100">Employee Name</TableHead>
+              <TableHead className="text-gray-900 dark:text-neutral-100">Date</TableHead>
+              <TableHead className="text-gray-900 dark:text-neutral-100">Status</TableHead>
+              <TableHead className="text-gray-900 dark:text-neutral-100">Check-in</TableHead>
+              <TableHead className="text-gray-900 dark:text-neutral-100">Check-out</TableHead>
+              <TableHead className="text-gray-900 dark:text-neutral-100">Work Hours</TableHead>
+              <TableHead className="text-gray-900 dark:text-neutral-100">Comments</TableHead>
+              <TableHead className="text-right text-gray-900 dark:text-neutral-100">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredAttendances.map(attendance => {
-              const employee = employees.find(e => e._id === attendance.employeeId);
+              // Get employee data from populated field or employees array
+              const employee = attendance.employeeId || employees.find(e => e._id === attendance.employeeId);
               return (
-                <TableRow key={attendance._id}>
-                  <TableCell className="font-medium">
-                    {employee ? `${employee.firstname} ${employee.lastname}` : 'Unknown Employee'}
+                <TableRow key={attendance._id} className="hover:bg-gray-50 dark:hover:bg-neutral-700/50 border-gray-200 dark:border-neutral-600">
+                  <TableCell className="font-medium text-gray-900 dark:text-neutral-100">
+                    {employee ? `${employee.firstname || ''} ${employee.lastname || ''}`.trim() : 'Unknown Employee'}
                   </TableCell>
-                  <TableCell>{new Date(attendance.date).toLocaleDateString()}</TableCell>
+                  <TableCell className="text-gray-700 dark:text-neutral-300">{new Date(attendance.date).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(attendance.status)}`}>
                       {attendance.status}
                     </span>
                   </TableCell>
-                  <TableCell>{attendance.checkInTime || 'N/A'}</TableCell>
-                  <TableCell>{attendance.checkOutTime || 'N/A'}</TableCell>
-                  <TableCell>{attendance.workHours || 0}</TableCell>
-                  <TableCell className="max-w-[200px] truncate" title={attendance.comments}>
+                  <TableCell className="text-gray-700 dark:text-neutral-300">{attendance.checkInTime || 'N/A'}</TableCell>
+                  <TableCell className="text-gray-700 dark:text-neutral-300">{attendance.checkOutTime || 'N/A'}</TableCell>
+                  <TableCell className="text-gray-700 dark:text-neutral-300">{attendance.workHours ? `${attendance.workHours}h` : '0h'}</TableCell>
+                  <TableCell className="max-w-[200px] truncate text-gray-700 dark:text-neutral-300" title={attendance.comments}>
                     {attendance.comments || 'No comments'}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button 
                       variant="ghost" 
-                      className="text-red-600 hover:text-red-800 hover:bg-red-100"
+                      className="text-red-600 hover:text-red-800 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/30"
                       onClick={() => handleDelete(attendance._id)}
                     >
                       Delete

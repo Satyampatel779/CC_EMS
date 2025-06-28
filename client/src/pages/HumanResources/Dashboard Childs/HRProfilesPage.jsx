@@ -221,13 +221,12 @@ const HRProfilesPage = () => {
     resetForm();
     setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
   };
-
   const getStatusColor = (status) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'inactive': return 'bg-red-100 text-red-800';
-      case 'suspended': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'active': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+      case 'inactive': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+      case 'suspended': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-neutral-700 dark:text-neutral-300';
     }
   };
 
@@ -252,33 +251,30 @@ const HRProfilesPage = () => {
     
     return matchesDepartment && matchesRole && matchesStatus && matchesSearch;
   });
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center h-64 bg-white dark:bg-neutral-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-white dark:bg-neutral-900 min-h-full">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">HR Profiles Management</h1>
-          <p className="text-gray-600">Manage HR staff profiles and permissions</p>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-neutral-100">HR Profiles Management</h1>
+          <p className="text-gray-600 dark:text-neutral-400">Manage HR staff profiles and permissions</p>
         </div>
         <button
           onClick={openCreateModal}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
         >
           <Plus size={20} />
           Add HR Profile
         </button>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+      </div>      {/* Filters */}
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <input
@@ -286,14 +282,14 @@ const HRProfilesPage = () => {
               placeholder="Search by name or email..."
               value={filters.search}
               onChange={(e) => dispatch(setFilters({ search: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 dark:border-neutral-600 rounded-lg px-3 py-2 bg-white dark:bg-neutral-700 text-gray-900 dark:text-neutral-100 placeholder-gray-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             />
           </div>
           <div>
             <select
               value={filters.department}
               onChange={(e) => dispatch(setFilters({ department: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"            >
+              className="w-full border border-gray-300 dark:border-neutral-600 rounded-lg px-3 py-2 bg-white dark:bg-neutral-700 text-gray-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"            >
               <option value="all">All Departments</option>
               {(departments || []).map((dept) => (
                 <option key={dept._id} value={dept._id}>
@@ -306,7 +302,7 @@ const HRProfilesPage = () => {
             <select
               value={filters.role}
               onChange={(e) => dispatch(setFilters({ role: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 dark:border-neutral-600 rounded-lg px-3 py-2 bg-white dark:bg-neutral-700 text-gray-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             >
               <option value="all">All Roles</option>
               <option value="HR_Director">HR Director</option>
@@ -319,7 +315,7 @@ const HRProfilesPage = () => {
             <select
               value={filters.status}
               onChange={(e) => dispatch(setFilters({ status: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 dark:border-neutral-600 rounded-lg px-3 py-2 bg-white dark:bg-neutral-700 text-gray-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
@@ -328,20 +324,18 @@ const HRProfilesPage = () => {
             </select>
           </div>
         </div>
-      </div>
-
-      {/* HR Profiles Grid */}
+      </div>      {/* HR Profiles Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProfiles.map((profile) => (
-          <div key={profile._id} className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <div key={profile._id} className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-neutral-700 hover:shadow-lg dark:hover:shadow-xl transition-shadow duration-200">
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <User size={24} className="text-blue-600" />
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                  <User size={24} className="text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800">{profile.name}</h3>
-                  <p className="text-sm text-gray-500">{getRoleLabel(profile.role)}</p>
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-neutral-100">{profile.name}</h3>
+                  <p className="text-sm text-gray-500 dark:text-neutral-400">{getRoleLabel(profile.role)}</p>
                 </div>
               </div>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(profile.status)}`}>

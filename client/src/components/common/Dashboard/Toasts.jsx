@@ -11,7 +11,23 @@ export const FormSubmitToast = ({ formdata }) => {
 
 
     const SubmitFormData = async () => {
-        dispatch(HandlePostHREmployees({ apiroute: "ADDEMPLOYEE", data: formdata })) 
+        // Transform form data to match backend expectations
+        const transformedData = {
+            ...formdata,
+            // Transform emergency contact fields into nested object
+            emergencyContact: {
+                name: formdata.emergencyContactName || "",
+                relationship: formdata.emergencyContactRelationship || "",
+                phone: formdata.emergencyContactPhone || ""
+            }
+        }
+
+        // Remove the individual emergency contact fields from the data
+        delete transformedData.emergencyContactName
+        delete transformedData.emergencyContactRelationship
+        delete transformedData.emergencyContactPhone
+
+        dispatch(HandlePostHREmployees({ apiroute: "ADDEMPLOYEE", data: transformedData })) 
     }
 
     // const DisplayToast = () => {

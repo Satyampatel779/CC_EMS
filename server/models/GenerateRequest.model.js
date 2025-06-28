@@ -27,8 +27,34 @@ const GenerateRequestSchema = new Schema({
     status: {
         type: String,
         required: true,
-        enum: ['Pending', 'Approved', 'Denied'],
+        enum: ['Pending', 'Approved', 'Denied', 'In Review', 'Closed'],
         default: 'Pending'
+    },
+    priority: {
+        type: String,
+        enum: ['Low', 'Medium', 'High'],
+        default: 'Medium'
+    },
+    hrComments: {
+        type: String,
+        default: ''
+    },
+    closedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "HumanResources"
+    },
+    closedDate: {
+        type: Date
+    },
+    requestType: {
+        type: String,
+        enum: ['IT Support', 'HR Support', 'Facilities', 'Finance', 'General'],
+        default: 'General'
+    },
+    createdBy: {
+        type: String,
+        enum: ['Employee', 'HR'],
+        default: 'Employee'
     },
     organizationID: {
         type: mongoose.Schema.Types.ObjectId,

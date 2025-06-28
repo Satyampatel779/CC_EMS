@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/table";
 
 if (!axios.defaults.baseURL) {
-  axios.defaults.baseURL = 'http://localhost:5000';
+  axios.defaults.baseURL = 'http://localhost:5001';
 }
 
 const EmployeeSalary = () => {
@@ -32,7 +32,7 @@ const EmployeeSalary = () => {
   const user = useSelector((state) => state.employeereducer?.user);
 
   const getAuthHeaders = () => {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const token = localStorage.getItem('EMtoken') || sessionStorage.getItem('EMtoken');
     return {
       headers: {
         Authorization: token ? `Bearer ${token}` : ''
@@ -42,27 +42,22 @@ const EmployeeSalary = () => {
   };
 
   useEffect(() => {
-    if (user?._id) {
-      fetchSalaryData();
-    }
-  }, [user]);
+    fetchSalaryData();
+  }, []);
 
   const fetchSalaryData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/v1/salary/all', getAuthHeaders());
+      const response = await axios.get('/api/v1/salary/employee/my-salary', getAuthHeaders());
       if (response.data.success) {
-        // Filter salary records for current employee
-        const employeeSalaries = response.data.salaries.filter(
-          salary => salary.employeeId === user._id
-        );
+        const salaries = response.data.salaries || [];
         
         // Get current salary (most recent)
-        const currentSalary = employeeSalaries
-          .sort((a, b) => new Date(b.effectiveDate) - new Date(a.effectiveDate))[0];
+        const currentSalary = salaries
+          .sort((a, b) => new Date(b.duedate) - new Date(a.duedate))[0];
         
         setSalaryData(currentSalary);
-        setSalaryHistory(employeeSalaries);
+        setSalaryHistory(salaries);
       }
     } catch (error) {
       console.error('Error fetching salary data:', error);
@@ -137,7 +132,7 @@ const EmployeeSalary = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-green-600">
-              {formatCurrency(salaryData.basicSalary)}
+              {formatCurrency(salaryData.basicpay)}
             </div>
           </CardContent>
         </Card>
@@ -149,19 +144,19 @@ const EmployeeSalary = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-blue-600">
-              {formatCurrency(calculateAnnualSalary(salaryData.basicSalary))}
+              {formatCurrency(calculateAnnualSalary(salaryData.basicpay))}
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Allowances</CardTitle>
-            <CardDescription>Monthly allowances</CardDescription>
+            <CardTitle>Bonuses</CardTitle>
+            <CardDescription>Monthly bonuses</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-purple-600">
-              {formatCurrency(salaryData.allowances || 0)}
+              {formatCurrency(salaryData.bonuses || 0)}
             </div>
           </CardContent>
         </Card>
@@ -173,10 +168,7 @@ const EmployeeSalary = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-orange-600">
-              {formatCurrency(calculateTakeHome(
-                (salaryData.basicSalary || 0) + (salaryData.allowances || 0),
-                salaryData.deductions || 0
-              ))}
+              {formatCurrency(salaryData.netpay)}
             </div>
           </CardContent>
         </Card>
@@ -196,37 +188,20 @@ const EmployeeSalary = () => {
             <div className="space-y-4">
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="font-medium">Basic Salary</span>
-                <span>{formatCurrency(salaryData.basicSalary)}</span>
+                <span>{formatCurrency(salaryData.basicpay)}</span>
               </div>
               
-              {salaryData.allowances > 0 && (
+              {salaryData.bonuses > 0 && (
                 <div className="flex justify-between items-center py-2 border-b">
-                  <span className="font-medium">Allowances</span>
-                  <span>{formatCurrency(salaryData.allowances)}</span>
-                </div>
-              )}
-              
-              {salaryData.overtime > 0 && (
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="font-medium">Overtime</span>
-                  <span>{formatCurrency(salaryData.overtime)}</span>
-                </div>
-              )}
-              
-              {salaryData.bonus > 0 && (
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="font-medium">Bonus</span>
-                  <span>{formatCurrency(salaryData.bonus)}</span>
+                  <span className="font-medium">Bonuses</span>
+                  <span>{formatCurrency(salaryData.bonuses)}</span>
                 </div>
               )}
               
               <div className="flex justify-between items-center py-2 font-bold text-lg border-t-2">
                 <span>Gross Salary</span>
                 <span>{formatCurrency(
-                  (salaryData.basicSalary || 0) + 
-                  (salaryData.allowances || 0) + 
-                  (salaryData.overtime || 0) + 
-                  (salaryData.bonus || 0)
+                  (salaryData.basicpay || 0) + (salaryData.bonuses || 0)
                 )}</span>
               </div>
             </div>
@@ -241,31 +216,10 @@ const EmployeeSalary = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {salaryData.taxDeductions > 0 && (
+              {salaryData.deductions > 0 && (
                 <div className="flex justify-between items-center py-2 border-b">
-                  <span className="font-medium">Tax Deductions</span>
-                  <span className="text-red-600">-{formatCurrency(salaryData.taxDeductions)}</span>
-                </div>
-              )}
-              
-              {salaryData.insurance > 0 && (
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="font-medium">Insurance</span>
-                  <span className="text-red-600">-{formatCurrency(salaryData.insurance)}</span>
-                </div>
-              )}
-              
-              {salaryData.providentFund > 0 && (
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="font-medium">Provident Fund</span>
-                  <span className="text-red-600">-{formatCurrency(salaryData.providentFund)}</span>
-                </div>
-              )}
-              
-              {salaryData.otherDeductions > 0 && (
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="font-medium">Other Deductions</span>
-                  <span className="text-red-600">-{formatCurrency(salaryData.otherDeductions)}</span>
+                  <span className="font-medium">Total Deductions</span>
+                  <span className="text-red-600">-{formatCurrency(salaryData.deductions)}</span>
                 </div>
               )}
               
@@ -290,25 +244,35 @@ const EmployeeSalary = () => {
           <CardContent>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-600">Effective From</span>
+                <span className="text-gray-600">Due Date</span>
                 <span className="font-medium">
-                  {moment(salaryData.effectiveDate).format('MMM DD, YYYY')}
+                  {moment(salaryData.duedate).format('MMM DD, YYYY')}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Payment Frequency</span>
-                <span className="font-medium">Monthly</span>
+                <span className="text-gray-600">Payment Status</span>
+                <span className="font-medium">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    salaryData.status === 'Paid' ? 'bg-green-100 text-green-800' :
+                    salaryData.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-red-100 text-red-800'
+                  }`}>
+                    {salaryData.status}
+                  </span>
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Currency</span>
-                <span className="font-medium">USD</span>
+                <span className="font-medium">{salaryData.currency}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Last Updated</span>
-                <span className="font-medium">
-                  {moment(salaryData.updatedAt).format('MMM DD, YYYY')}
-                </span>
-              </div>
+              {salaryData.paymentdate && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Payment Date</span>
+                  <span className="font-medium">
+                    {moment(salaryData.paymentdate).format('MMM DD, YYYY')}
+                  </span>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -323,7 +287,7 @@ const EmployeeSalary = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">YTD Gross</span>
                 <span className="font-medium">
-                  {formatCurrency(calculateAnnualSalary(salaryData.basicSalary))}
+                  {formatCurrency(calculateAnnualSalary(salaryData.basicpay))}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -335,10 +299,7 @@ const EmployeeSalary = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">YTD Net</span>
                 <span className="font-medium">
-                  {formatCurrency(calculateTakeHome(
-                    calculateAnnualSalary(salaryData.basicSalary),
-                    (salaryData.deductions || 0) * 12
-                  ))}
+                  {formatCurrency(calculateAnnualSalary(salaryData.netpay))}
                 </span>
               </div>
             </div>
@@ -357,9 +318,9 @@ const EmployeeSalary = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Effective Date</TableHead>
+                <TableHead>Due Date</TableHead>
                 <TableHead>Basic Salary</TableHead>
-                <TableHead>Allowances</TableHead>
+                <TableHead>Bonuses</TableHead>
                 <TableHead>Deductions</TableHead>
                 <TableHead>Net Salary</TableHead>
                 <TableHead>Status</TableHead>
@@ -370,26 +331,27 @@ const EmployeeSalary = () => {
                 salaryHistory.map((salary) => (
                   <TableRow key={salary._id}>
                     <TableCell>
-                      {moment(salary.effectiveDate).format('MMM DD, YYYY')}
+                      {moment(salary.duedate).format('MMM DD, YYYY')}
                     </TableCell>
                     <TableCell>
-                      {formatCurrency(salary.basicSalary)}
+                      {formatCurrency(salary.basicpay)}
                     </TableCell>
                     <TableCell>
-                      {formatCurrency(salary.allowances || 0)}
+                      {formatCurrency(salary.bonuses || 0)}
                     </TableCell>
                     <TableCell className="text-red-600">
                       -{formatCurrency(salary.deductions || 0)}
                     </TableCell>
                     <TableCell className="font-medium">
-                      {formatCurrency(calculateTakeHome(
-                        (salary.basicSalary || 0) + (salary.allowances || 0),
-                        salary.deductions || 0
-                      ))}
+                      {formatCurrency(salary.netpay)}
                     </TableCell>
                     <TableCell>
-                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        Active
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        salary.status === 'Paid' ? 'bg-green-100 text-green-800' :
+                        salary.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {salary.status}
                       </span>
                     </TableCell>
                   </TableRow>

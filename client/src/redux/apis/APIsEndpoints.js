@@ -24,7 +24,8 @@ export const HREmployeesPageEndPoints = {
     GETALL: "/api/v1/employee/all",
     ADDEMPLOYEE: "/api/auth/employee/signup",
     GETONE: (EMID) => `/api/v1/employee/by-HR/${EMID}`,
-    DELETE: (EMID) => `/api/v1/employee/delete-employee/${EMID}`
+    DELETE: (EMID) => `/api/v1/employee/delete-employee/${EMID}`,
+    UPDATE: (EMID) => `/api/v1/employee/update-employee/${EMID}`
 }
 
 export const HRDepartmentPageEndPoints = {
@@ -87,8 +88,12 @@ export const RecruitmentEndPoints = {
 
 export const RequestManagementEndPoints = {
     GETALL: "/api/v1/generate-request/all",
-    CREATE: "/api/v1/generate-request/create-request", 
+    CREATE: "/api/v1/generate-request/create-request",
+    CREATE_BY_HR: "/api/v1/generate-request/create-request-by-hr", 
     UPDATE_STATUS: "/api/v1/generate-request/update-request-status",
+    UPDATE_CONTENT: "/api/v1/generate-request/update-request-content",
+    CLOSE_REQUEST: "/api/v1/generate-request/close-request",
+    UPDATE_PRIORITY: "/api/v1/generate-request/update-priority",
     DELETE: (id) => `/api/v1/generate-request/delete-request/${id}`,
     GETONE: (id) => `/api/v1/generate-request/${id}`,
     GET_EMPLOYEE_REQUESTS: (employeeId) => `/api/v1/generate-request/employee/${employeeId}`
@@ -194,7 +199,11 @@ export const APIsEndpoints = {
     // Request Management
     getAllRequests: RequestManagementEndPoints.GETALL,
     createRequest: RequestManagementEndPoints.CREATE,
+    createRequestByHR: RequestManagementEndPoints.CREATE_BY_HR,
     updateRequestStatus: RequestManagementEndPoints.UPDATE_STATUS,
+    updateRequestContent: RequestManagementEndPoints.UPDATE_CONTENT,
+    closeRequest: RequestManagementEndPoints.CLOSE_REQUEST,
+    updateRequestPriority: RequestManagementEndPoints.UPDATE_PRIORITY,
     deleteRequest: RequestManagementEndPoints.DELETE,
     getRequestById: RequestManagementEndPoints.GETONE,
     getEmployeeRequests: RequestManagementEndPoints.GET_EMPLOYEE_REQUESTS,

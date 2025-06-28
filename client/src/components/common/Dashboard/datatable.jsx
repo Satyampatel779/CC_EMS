@@ -164,26 +164,26 @@ export const DataTable = ({ noticedata }) => {
 
         <div className="overflow-auto h-full">
             <div className="notices-heading mx-3 my-2">
-                <p className="min-[250px]:text-xl xl:text-3xl font-bold min-[250px]:text-center sm:text-start">Recent Notices</p>
+                <p className="min-[250px]:text-xl xl:text-3xl font-bold min-[250px]:text-center sm:text-start text-gray-900 dark:text-neutral-100">Recent Notices</p>
             </div>
-            <Table>
+            <Table className="bg-white dark:bg-neutral-800">
                 <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-[100px]">Notice ID</TableHead>
-                        <TableHead>Title</TableHead>
-                        <TableHead>Audience</TableHead>
-                        <TableHead className="text-right">Created By</TableHead>
+                    <TableRow className="border-gray-200 dark:border-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-700/50">
+                        <TableHead className="w-[100px] text-gray-900 dark:text-neutral-100">Notice ID</TableHead>
+                        <TableHead className="text-gray-900 dark:text-neutral-100">Title</TableHead>
+                        <TableHead className="text-gray-900 dark:text-neutral-100">Audience</TableHead>
+                        <TableHead className="text-right text-gray-900 dark:text-neutral-100">Created By</TableHead>
                     </TableRow>
                 </TableHeader>
 
                 <TableBody>
 
                     {Notices.map((Notice) => (
-                        <TableRow key={Notice.noticeID}>
-                            <TableCell className="font-medium">{Notice.noticeID}</TableCell>
-                            <TableCell>{Notice.noticeTitle}</TableCell>
-                            <TableCell>{Notice.noticeAudience}</TableCell>
-                            <TableCell className="text-right">{Notice.noticeCreatedBy}</TableCell>
+                        <TableRow key={Notice.noticeID} className="border-gray-200 dark:border-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-700/50">
+                            <TableCell className="font-medium text-gray-900 dark:text-neutral-100">{Notice.noticeID}</TableCell>
+                            <TableCell className="text-gray-700 dark:text-neutral-300">{Notice.noticeTitle}</TableCell>
+                            <TableCell className="text-gray-700 dark:text-neutral-300">{Notice.noticeAudience}</TableCell>
+                            <TableCell className="text-right text-gray-700 dark:text-neutral-300">{Notice.noticeCreatedBy}</TableCell>
                         </TableRow>
                     ))}
 

@@ -50,12 +50,12 @@ export const HRDashboardPage = () => {
     }
 
     return (
-        <>
+        <div className="bg-white dark:bg-neutral-900 min-h-full">
             <KeyDetailBoxContentWrapper imagedataarray={DataArray} data={DashboardState.data} />
             <div className="salary-notices-container h-3/4 grid min-[250px]:grid-cols-1 lg:grid-cols-2 min-[250px]:gap-3 xl:gap-3">
                 <SalaryChart balancedata={DashboardState.data} />
                 <DataTable noticedata={DashboardState.data} />
             </div>
-        </>
+        </div>
     )
 }

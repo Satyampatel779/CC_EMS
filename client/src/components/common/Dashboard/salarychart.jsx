@@ -50,13 +50,13 @@ export const SalaryChart = ({ balancedata }) => {
     return (
         <div className="salary-container flex flex-col min-[250px]:gap-3 sm:gap-1 h-auto">
             <div className="heading px-2 my-2 min-[250px]:px-3">
-                <h1 className="min-[250px]:text-xl xl:text-3xl font-bold min-[250px]:text-center sm:text-start">Balance Chart</h1>
+                <h1 className="min-[250px]:text-xl xl:text-3xl font-bold min-[250px]:text-center sm:text-start text-gray-900 dark:text-neutral-100">Balance Chart</h1>
             </div>
-            <Card className="mx-2">
+            <Card className="mx-2 bg-white dark:bg-neutral-800 border-gray-200 dark:border-neutral-700">
                 <CardHeader>
-                <CardTitle className="min-[250px]:text-xs sm:text-md md:text-lg lg:text-xl">Available Salary Amount : {chartData.length > 0 && chartData[chartData.length - 1] ? chartData[chartData.length - 1]["AvailableAmount"] : 0}
+                <CardTitle className="min-[250px]:text-xs sm:text-md md:text-lg lg:text-xl text-gray-900 dark:text-neutral-100">Available Salary Amount : {chartData.length > 0 && chartData[chartData.length - 1] ? chartData[chartData.length - 1]["AvailableAmount"] : 0}
                 </CardTitle>
-                    <CardDescription className="min-[250px]:text-xs sm:text-md md:text-lg lg:text-xl">
+                    <CardDescription className="min-[250px]:text-xs sm:text-md md:text-lg lg:text-xl text-gray-600 dark:text-neutral-400">
                         Salaries Chart
                     </CardDescription>
                 </CardHeader>
@@ -80,7 +80,7 @@ export const SalaryChart = ({ balancedata }) => {
                             />
                             <ChartTooltip
                                 cursor={false}
-                                content={<ChartTooltipContent indicator="line" className="p-2" />}
+                                content={<ChartTooltipContent indicator="line" className="p-2 bg-white dark:bg-neutral-800 border-gray-200 dark:border-neutral-700 text-gray-900 dark:text-neutral-100" />}
                                 className="p-[2px] flex gap-1 items-center min-[250px]:text-xs sm:text-xs"
                             />
                             <Area
@@ -106,11 +106,11 @@ export const SalaryChart = ({ balancedata }) => {
                 <CardFooter>
                     <div className="flex w-full items-start gap-2 text-sm">
                         <div className="grid gap-2">
-                            <div className="flex items-center gap-2 font-medium leading-none">
+                            <div className="flex items-center gap-2 font-medium leading-none text-gray-900 dark:text-neutral-100">
                                 Trending up by {trendingUp} % this month
                                 <TrendingUp className="h-4 w-4" />
                             </div>
-                            <div className="flex items-center gap-2 leading-none text-muted-foreground">{chartData.length >= 2 ? `${chartData[0]["month"]} 2024 - ${chartData[chartData.length - 1]["month"]} 2024` : chartData.length === 1 ? `${chartData[0]["month"]} 2024` : 'No data available'}
+                            <div className="flex items-center gap-2 leading-none text-muted-foreground dark:text-neutral-400">{chartData.length >= 2 ? `${chartData[0]["month"]} 2024 - ${chartData[chartData.length - 1]["month"]} 2024` : chartData.length === 1 ? `${chartData[0]["month"]} 2024` : 'No data available'}
                             </div>
                         </div>
                     </div>

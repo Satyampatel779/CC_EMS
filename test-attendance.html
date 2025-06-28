@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Attendance Button</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .clock-in { background-color: #16a34a; }
+        .clock-out { background-color: #dc2626; }
+        .disabled { background-color: #ccc; cursor: not-allowed; }
+        #status { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 4px;
+            background-color: #f0f0f0;
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Attendance Button Test Page</h1>
+    
+    <div class="container">
+        <h2>Step 1: Login First</h2>
+        <div class="input-group">
+            <label>Employee Email:</label><br>
+            <input type="email" id="email" placeholder="testemployee@example.com" value="testemployee@example.com">
+        </div>
+        <div class="input-group">
+            <label>Password:</label><br>
+            <input type="password" id="password" placeholder="password123" value="password123">
+        </div>
+        <button onclick="login()" class="clock-in">Login</button>
+        <button onclick="logout()" class="clock-out">Logout</button>
+    </div>
+
+    <div class="container">
+        <h2>Step 2: Test Clock-In/Clock-Out</h2>
+        <button id="attendanceBtn" onclick="toggleAttendance()" class="disabled" disabled>
+            Check Status First
+        </button>
+        <button onclick="checkStatus()" class="clock-in">Check Status</button>
+    </div>
+
+    <div class="container">
+        <h2>Status & Logs</h2>
+        <div id="status">Ready to test...</div>
+        <div id="logs" style="font-family: monospace; font-size: 12px; background: #f8f8f8; padding: 10px; height: 200px; overflow-y: auto;"></div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:5001';
+        let isClockedIn = false;
+        let isLoading = false;
+
+        function log(message) {
+            const logs = document.getElementById('logs');
+            const time = new Date().toLocaleTimeString();
+            logs.innerHTML += `[${time}] ${message}\n`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(message);
+        }
+
+        function updateStatus(text, type = 'info') {
+            const status = document.getElementById('status');
+            status.innerHTML = text;
+            status.style.backgroundColor = type === 'error' ? '#fee' : type === 'success' ? '#efe' : '#f0f0f0';
+        }
+
+        async function makeRequest(method, endpoint, data = {}) {
+            const token = localStorage.getItem('EMtoken');
+            
+            log(`Making ${method} request to ${endpoint}`);
+            
+            try {
+                const config = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                };
+                
+                if (token) {
+                    config.headers['Authorization'] = `Bearer ${token}`;
+                    log(`Using token: ${token.substring(0, 20)}...`);
+                } else {
+                    log('No token found in localStorage');
+                }
+                
+                if (method === 'POST' && Object.keys(data).length > 0) {
+                    config.body = JSON.stringify(data);
+                }
+                
+                const response = await fetch(`${BASE_URL}${endpoint}`, config);
+                const result = await response.json();
+                
+                log(`Response: ${response.status} - ${JSON.stringify(result)}`);
+                
+                if (!response.ok) {
+                    throw new Error(result.message || 'Request failed');
+                }
+                
+                return result;
+            } catch (error) {
+                log(`Error: ${error.message}`);
+                throw error;
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                updateStatus('Please enter email and password', 'error');
+                return;
+            }
+            
+            try {
+                updateStatus('Logging in...');
+                const result = await makeRequest('POST', '/api/auth/employee/login', { email, password });
+                
+                if (result.token) {
+                    localStorage.setItem('EMtoken', result.token);
+                    updateStatus('Login successful! ✅', 'success');
+                    log('Token stored in localStorage');
+                } else {
+                    updateStatus('Login failed - no token received', 'error');
+                }
+            } catch (error) {
+                updateStatus(`Login failed: ${error.message}`, 'error');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('EMtoken');
+            updateStatus('Logged out');
+            log('Token removed from localStorage');
+            updateAttendanceButton('Check Status First', false, true);
+        }
+
+        async function checkStatus() {
+            try {
+                updateStatus('Checking attendance status...');
+                const result = await makeRequest('GET', '/api/v1/attendance/employee/my-status');
+                
+                if (result.success) {
+                    isClockedIn = result.data?.isClockedIn || false;
+                    updateStatus(`Status: ${isClockedIn ? 'Clocked In' : 'Clocked Out'} ✅`, 'success');
+                    updateAttendanceButton(isClockedIn ? 'Clock Out' : 'Clock In', isClockedIn, false);
+                } else {
+                    updateStatus('Failed to check status', 'error');
+                }
+            } catch (error) {
+                updateStatus(`Status check failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function toggleAttendance() {
+            if (isLoading) return;
+            
+            isLoading = true;
+            const action = isClockedIn ? 'clock-out' : 'clock-in';
+            const actionText = isClockedIn ? 'Clocking Out' : 'Clocking In';
+            
+            updateAttendanceButton(`${actionText}...`, isClockedIn, true);
+            
+            try {
+                updateStatus(`${actionText}...`);
+                const result = await makeRequest('POST', `/api/v1/attendance/employee/${action}`);
+                
+                if (result.success) {
+                    isClockedIn = !isClockedIn;
+                    updateStatus(`${actionText.replace('ing', 'ed')} successfully! ✅`, 'success');
+                    updateAttendanceButton(isClockedIn ? 'Clock Out' : 'Clock In', isClockedIn, false);
+                } else {
+                    updateStatus(`${actionText} failed`, 'error');
+                    updateAttendanceButton(isClockedIn ? 'Clock Out' : 'Clock In', isClockedIn, false);
+                }
+            } catch (error) {
+                updateStatus(`${actionText} failed: ${error.message}`, 'error');
+                updateAttendanceButton(isClockedIn ? 'Clock Out' : 'Clock In', isClockedIn, false);
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        function updateAttendanceButton(text, clockedIn, disabled) {
+            const btn = document.getElementById('attendanceBtn');
+            btn.textContent = text;
+            btn.disabled = disabled;
+            btn.className = disabled ? 'disabled' : (clockedIn ? 'clock-out' : 'clock-in');
+        }
+
+        // Initialize
+        log('Test page loaded');
+        if (localStorage.getItem('EMtoken')) {
+            log('Found existing token in localStorage');
+            updateStatus('Found existing login token - click "Check Status" to test');
+        } else {
+            updateStatus('No login token found - login first');
+        }
+    </script>
+</body>
+</html>

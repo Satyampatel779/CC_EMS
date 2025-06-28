@@ -84,38 +84,68 @@ export function CalendarPage() {
     } catch (e) {
       toast({ variant: "destructive", title: "Error", description: "Failed to delete event" });
     }
-  };
-  return (
-    <div className="p-6">
+  };  return (
+    <div className="p-6 bg-white dark:bg-neutral-900 min-h-full">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-3">
-          <img src="/../../src/assets/HR-Dashboard/calendar.png" alt="Calendar" className="w-8 h-8" />
-          <h1 className="text-2xl font-bold">Company Calendar</h1>
+          <img src="/../../src/assets/HR-Dashboard/calendar.png" alt="Calendar" className="w-8 h-8 dark:brightness-0 dark:invert" />
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-neutral-100">Company Calendar</h1>
         </div>
-        <Button onClick={() => { setShowDialog(true); setEditId(null); setForm({ eventtitle: '', eventdate: '', description: '', audience: '' }); }}>Add Event</Button>
+        <Button onClick={() => { setShowDialog(true); setEditId(null); setForm({ eventtitle: '', eventdate: '', description: '', audience: '' }); }} className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800">Add Event</Button>
       </div>
-      <BigCalendar
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        style={{ height: 500 }}
-        onSelectEvent={event => handleEdit(event)}
-      />
+      <div className="bg-white dark:bg-neutral-800 rounded-lg p-4 border border-gray-200 dark:border-neutral-700">
+        <BigCalendar
+          localizer={localizer}
+          events={events}
+          startAccessor="start"
+          endAccessor="end"
+          style={{ height: 500 }}
+          onSelectEvent={event => handleEdit(event)}
+          className="dark:text-neutral-100"
+        />
+      </div>
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent>
+        <DialogContent className="bg-white dark:bg-neutral-800 border-gray-200 dark:border-neutral-700">
           <DialogHeader>
-            <DialogTitle>{editId ? 'Edit Event' : 'Add Event'}</DialogTitle>
+            <DialogTitle className="text-gray-900 dark:text-neutral-100">{editId ? 'Edit Event' : 'Add Event'}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <input name="eventtitle" value={form.eventtitle} onChange={handleInput} placeholder="Title" required className="w-full border p-2 rounded" />
-            <input name="eventdate" type="date" value={form.eventdate} onChange={handleInput} required className="w-full border p-2 rounded" />
-            <input name="audience" value={form.audience} onChange={handleInput} placeholder="Audience" required className="w-full border p-2 rounded" />
-            <textarea name="description" value={form.description} onChange={handleInput} placeholder="Description" required className="w-full border p-2 rounded" />
+            <input 
+              name="eventtitle" 
+              value={form.eventtitle} 
+              onChange={handleInput} 
+              placeholder="Title" 
+              required 
+              className="w-full border border-gray-300 dark:border-neutral-600 p-2 rounded bg-white dark:bg-neutral-700 text-gray-900 dark:text-neutral-100 placeholder-gray-500 dark:placeholder-neutral-400" 
+            />
+            <input 
+              name="eventdate" 
+              type="date" 
+              value={form.eventdate} 
+              onChange={handleInput} 
+              required 
+              className="w-full border border-gray-300 dark:border-neutral-600 p-2 rounded bg-white dark:bg-neutral-700 text-gray-900 dark:text-neutral-100" 
+            />
+            <input 
+              name="audience" 
+              value={form.audience} 
+              onChange={handleInput} 
+              placeholder="Audience" 
+              required 
+              className="w-full border border-gray-300 dark:border-neutral-600 p-2 rounded bg-white dark:bg-neutral-700 text-gray-900 dark:text-neutral-100 placeholder-gray-500 dark:placeholder-neutral-400" 
+            />
+            <textarea 
+              name="description" 
+              value={form.description} 
+              onChange={handleInput} 
+              placeholder="Description" 
+              required 
+              className="w-full border border-gray-300 dark:border-neutral-600 p-2 rounded bg-white dark:bg-neutral-700 text-gray-900 dark:text-neutral-100 placeholder-gray-500 dark:placeholder-neutral-400" 
+            />
             <div className="flex gap-2">
-              <Button type="submit">{editId ? 'Update' : 'Create'}</Button>
-              {editId && <Button type="button" variant="destructive" onClick={() => handleDelete(editId)}>Delete</Button>}
-              <Button type="button" variant="outline" onClick={() => { setShowDialog(false); setEditId(null); }}>Cancel</Button>
+              <Button type="submit" className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800">{editId ? 'Update' : 'Create'}</Button>
+              {editId && <Button type="button" variant="destructive" onClick={() => handleDelete(editId)} className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800">Delete</Button>}
+              <Button type="button" variant="outline" onClick={() => { setShowDialog(false); setEditId(null); }} className="border-gray-300 dark:border-neutral-600 text-gray-700 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-700">Cancel</Button>
             </div>
           </form>
         </DialogContent>

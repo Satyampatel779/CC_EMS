@@ -34,6 +34,76 @@ const EmployeeSchema = new Schema({
         enum: ["HR-Admin", "Employee"],
         required: true,
     },
+    // Personal Information Fields
+    dateOfBirth: {
+        type: Date,
+        default: null
+    },
+    gender: {
+        type: String,
+        enum: ["Male", "Female", "Other"],
+        default: null
+    },
+    address: {
+        type: String,
+        default: null
+    },
+    // Employment Information Fields
+    employeeId: {
+        type: String,
+        unique: true,
+        sparse: true // Allows null values while maintaining uniqueness
+    },
+    position: {
+        type: String,
+        default: null
+    },
+    joiningDate: {
+        type: Date,
+        default: null
+    },
+    employmentType: {
+        type: String,
+        enum: ["Full-time", "Part-time", "Contract", "Intern"],
+        default: "Full-time"
+    },
+    manager: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Employee",
+        default: null
+    },
+    workLocation: {
+        type: String,
+        default: null
+    },
+    status: {
+        type: String,
+        enum: ["Active", "Inactive", "On Leave", "Terminated"],
+        default: "Active"
+    },
+    // Additional fields for better profile management
+    emergencyContact: {
+        name: {
+            type: String,
+            default: null
+        },
+        relationship: {
+            type: String,
+            default: null
+        },
+        phone: {
+            type: String,
+            default: null
+        }
+    },
+    skills: [{
+        type: String
+    }],
+    education: [{
+        degree: String,
+        institution: String,
+        year: Date
+    }],
     lastlogin: {
         type: Date,
         default: Date.now

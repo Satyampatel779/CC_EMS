@@ -164,18 +164,14 @@ export const HandleUpdateLeavebyHR = async (req, res) => {
 export const HandleDeleteLeave = async (req, res) => {
     try {
         const { leaveID } = req.params;
-        const employeeID = req.EMid;
-
-        if (!leaveID) {
-             return res.status(400).json({ success: false, message: "Leave ID is required in URL parameters" });
-        }
-
+        const employeeID = req.EMid; // Ensure employee can only delete their own leaves
         const leave = await Leave.findOne({ _id: leaveID, employee: employeeID, organizationID: req.ORGID });
         if (!leave) {
-            return res.status(404).json({ success: false, message: "Leave request not found or you do not have permission to delete it" });
+            return res.status(404).json({ success: false, message: "Leave request not found or you don't have permission to delete it" });
         }
+        // Only allow deletion if leave is pending
         if (leave.status !== "Pending") {
-            return res.status(400).json({ success: false, message: "Only pending leave requests can be deleted" });
+            return res.status(400).json({ success: false, message: "You can only delete pending leave requests" });
         }
         await leave.deleteOne();
         // Remove from employee's leaverequest array
@@ -187,5 +183,29 @@ export const HandleDeleteLeave = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid Leave ID format" });
         }
         return res.status(500).json({ success: false, message: "Internal server error during leave deletion." });
+    }
+};
+
+// Get employee's own leave requests
+export const HandleEmployeeLeaves = async (req, res) => {
+    try {
+        const employeeID = req.EMid; // Set by VerifyEmployeeToken
+        
+        const leaves = await Leave.find({ 
+            employee: employeeID, 
+            organizationID: req.ORGID 
+        }).populate("employee", "firstname lastname department").sort({ createdAt: -1 });
+        
+        return res.status(200).json({ 
+            success: true, 
+            message: "Employee leave requests retrieved successfully", 
+            leaves: leaves 
+        });
+    } catch (error) {
+        console.error("Get Employee Leaves Error:", error);
+        return res.status(500).json({ 
+            success: false, 
+            message: "Internal server error while fetching leave requests." 
+        });
     }
 };

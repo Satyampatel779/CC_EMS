@@ -24,6 +24,7 @@
     "mailtrap": "^3.4.0",
     "mongodb": "^6.10.0",
     "mongoose": "^8.8.1",
+    "node-cron": "^4.1.1",
     "socket.io": "^4.7.1"
   },
   "devDependencies": {

@@ -41,8 +41,25 @@ const SalarySchema = new Schema({
     status: {
         type: String,
         required: true,
-        enum: ["Pending", "Delayed", "Paid"],
+        enum: ["Pending", "Delayed", "Paid", "Scheduled", "Auto-Generated"],
         default: "Pending",
+    },
+    workHours: {
+        type: Number,
+        default: 0
+    },
+    overtimeHours: {
+        type: Number,
+        default: 0
+    },
+    hourlyRate: {
+        type: Number,
+        default: 17.20
+    },
+    paymentType: {
+        type: String,
+        enum: ["Manual", "Auto-calculated", "Auto-Payroll"],
+        default: "Manual"
     },
     organizationID: {
         type: mongoose.Schema.Types.ObjectId,

@@ -8,11 +8,22 @@ import { Organization } from "../models/Organization.model.js"
 
 
 export const HandleEmployeeSignup = async (req, res) => {
-    const { firstname, lastname, email, password, contactnumber } = req.body
+    const { 
+        firstname, lastname, email, password, contactnumber,
+        // Personal Information
+        dateOfBirth, gender, address,
+        // Employment Information  
+        employeeId, position, joiningDate, employmentType, manager, workLocation, status,
+        // Emergency Contact
+        emergencyContact,
+        // Additional fields
+        skills, education
+    } = req.body
+    
     try {
 
         if (!firstname || !lastname || !email || !password || !contactnumber) {
-            return res.status(400).json({ success: false, message: "All Fields are required" });
+            return res.status(400).json({ success: false, message: "All required fields must be provided" });
         }
 
         const organization = await Organization.findOne({ _id: req.ORGID })
@@ -28,10 +39,19 @@ export const HandleEmployeeSignup = async (req, res) => {
                 return res.status(400).json({ success: false, message: `Employee already exists, please go to the login page or create new employee` })
             }
 
+            // Check if employeeId is provided and unique
+            if (employeeId) {
+                const existingEmployeeId = await Employee.findOne({ employeeId: employeeId })
+                if (existingEmployeeId) {
+                    return res.status(400).json({ success: false, message: "Employee ID already exists, please use a different ID" })
+                }
+            }
+
             const hashedPassword = await bcrypt.hash(password, 10)
             const verificationcode = GenerateVerificationToken(6)
 
-            const newEmployee = await Employee.create({
+            // Prepare employee data with all fields
+            const employeeData = {
                 firstname: firstname,
                 lastname: lastname,
                 email: email,
@@ -41,7 +61,36 @@ export const HandleEmployeeSignup = async (req, res) => {
                 verificationtoken: verificationcode,
                 verificationtokenexpires: Date.now() + 5 * 60 * 1000,
                 organizationID: organization._id
-            })
+            }
+
+            // Add optional personal information fields
+            if (dateOfBirth) employeeData.dateOfBirth = new Date(dateOfBirth)
+            if (gender) employeeData.gender = gender
+            if (address) employeeData.address = address
+
+            // Add optional employment information fields
+            if (employeeId) employeeData.employeeId = employeeId
+            if (position) employeeData.position = position
+            if (joiningDate) employeeData.joiningDate = new Date(joiningDate)
+            if (employmentType) employeeData.employmentType = employmentType
+            if (manager) employeeData.manager = manager
+            if (workLocation) employeeData.workLocation = workLocation
+            if (status) employeeData.status = status
+
+            // Add emergency contact if provided
+            if (emergencyContact) {
+                employeeData.emergencyContact = emergencyContact
+            }
+
+            // Add skills and education arrays if provided
+            if (skills && Array.isArray(skills)) {
+                employeeData.skills = skills.filter(skill => skill.trim() !== '')
+            }
+            if (education && Array.isArray(education)) {
+                employeeData.education = education.filter(edu => edu.degree && edu.institution)
+            }
+
+            const newEmployee = await Employee.create(employeeData)
 
             organization.employees.push(newEmployee._id)
             await organization.save()

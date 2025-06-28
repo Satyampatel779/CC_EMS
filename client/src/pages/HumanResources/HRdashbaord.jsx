@@ -24,9 +24,12 @@ export const HRDashbaord = () => {
 
             <div className="HRDashboard-sidebar">
                 <SidebarProvider>
-                    <HRdashboardSidebar />
-                    <div className="sidebar-container min-[250px]:absolute md:relative">
-                        <SidebarTrigger />
+                    {/* Wrap sidebar and trigger in a single parent to satisfy React.Children.only */}
+                    <div>
+                        <HRdashboardSidebar />
+                        <div className="sidebar-container min-[250px]:absolute md:relative">
+                            <SidebarTrigger />
+                        </div>
                     </div>
                 </SidebarProvider>
             </div>

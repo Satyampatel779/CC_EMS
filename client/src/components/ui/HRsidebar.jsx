@@ -16,6 +16,7 @@ import { handleLogout } from "@/apis/apiService"
 import { useState } from "react"
 import { useDispatch } from "react-redux"
 import { logoutHR } from "@/redux/Slices/HRSlice"
+import { ThemeToggle } from "../common/ThemeToggle"
 
 export function HRdashboardSidebar() {
     const navigate = useNavigate()
@@ -50,137 +51,148 @@ export function HRdashboardSidebar() {
     }
 
     return (
-        <Sidebar>
+        <Sidebar className="border-r border-sidebar-border bg-sidebar">
+            <SidebarHeader className="border-b border-sidebar-border p-4">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-sidebar-foreground">HR Dashboard</h2>
+                    <ThemeToggle variant="ghost" size="sm" />
+                </div>
+            </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>
-                    {/* <SidebarGroupLabel>HR-Dashboard EMS</SidebarGroupLabel> */}
-                    <SidebarGroupContent>
+                    <SidebarGroupContent>                        <SidebarMenu className="gap-3 p-2">
 
-                        <SidebarMenu className="gap-3 p-2">
+                            <SidebarMenuItem>
+                                <NavLink to={"/HR/dashboard/dashboard-data"} className={({ isActive }) => isActive ? "bg-blue-200 dark:bg-blue-800 rounded-lg" : ""}>
+                                    <SidebarMenuButton className="flex gap-4 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-lg transition-colors duration-200 w-full">
+                                        <img src="/../../src/assets/HR-Dashboard/dashboard.png" alt="" className="w-7 ms-2 my-1 dark:brightness-0 dark:invert" />
+                                        <span className="text-[16px] text-neutral-700 dark:text-neutral-200">Dashboard</span>
+                                    </SidebarMenuButton>
+                                </NavLink>
+                            </SidebarMenuItem>
 
+                            <SidebarMenuItem>
+                                <NavLink to={"/HR/dashboard/employees"} className={({ isActive }) => isActive ? "bg-blue-200 dark:bg-blue-800 rounded-lg" : ""}>
+                                    <SidebarMenuButton className="flex gap-4 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-lg transition-colors duration-200 w-full">
+                                        <img src="/../../src/assets/HR-Dashboard/employee-2.png" alt="" className="w-7 ms-2 my-1 dark:brightness-0 dark:invert" />
+                                        <span className="text-[16px] text-neutral-700 dark:text-neutral-200">Employees</span>
+                                    </SidebarMenuButton>
+                                </NavLink>
+                            </SidebarMenuItem>
 
-                            <NavLink to={"/HR/dashboard/dashboard-data"} className={({ isActive }) => { return isActive ? "bg-blue-200 rounded-lg" : "" }}>
+                            <SidebarMenuItem>
+                                <NavLink to={"/HR/dashboard/departments"} className={({ isActive }) => isActive ? "bg-blue-200 dark:bg-blue-800 rounded-lg" : ""}>
+                                    <SidebarMenuButton className="flex gap-4 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-lg transition-colors duration-200 w-full">
+                                        <img src="/../../src/assets/HR-Dashboard/department.png" alt="" className="w-7 ms-2 my-1 dark:brightness-0 dark:invert" />
+                                        <span className="text-[16px] text-neutral-700 dark:text-neutral-200">Departments</span>
+                                    </SidebarMenuButton>
+                                </NavLink>
+                            </SidebarMenuItem>
 
-                                <SidebarMenuItem className="flex gap-4 hover:bg-blue-200 rounded-lg">
-                                    <img src="/../../src/assets/HR-Dashboard/dashboard.png" alt="" className="w-7 ms-2 my-1" />
-                                    <button className="text-[16px]">Dashboard</button>
-                                </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <NavLink to={"/HR/dashboard/salaries"} className={({ isActive }) => isActive ? "bg-blue-200 dark:bg-blue-800 rounded-lg" : ""}>
+                                    <SidebarMenuButton className="flex gap-4 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-lg transition-colors duration-200 w-full">
+                                        <img src="/../../src/assets/HR-Dashboard/salary.png" alt="" className="w-7 ms-2 my-1 dark:brightness-0 dark:invert" />
+                                        <span className="text-[16px] text-neutral-700 dark:text-neutral-200">Salaries</span>
+                                    </SidebarMenuButton>
+                                </NavLink>
+                            </SidebarMenuItem>
 
-                            </NavLink>
+                            <SidebarMenuItem>
+                                <NavLink to={"/HR/dashboard/attendances"} className={({ isActive }) => isActive ? "bg-blue-200 dark:bg-blue-800 rounded-lg" : ""}>
+                                    <SidebarMenuButton className="flex gap-4 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-lg transition-colors duration-200 w-full">
+                                        <img src="/../../src/assets/HR-Dashboard/attendance.png" alt="" className="w-7 ms-2 my-1 dark:brightness-0 dark:invert" />
+                                        <span className="text-[16px] text-neutral-700 dark:text-neutral-200">Attendances</span>
+                                    </SidebarMenuButton>
+                                </NavLink>
+                            </SidebarMenuItem>
 
+                            <SidebarMenuItem>
+                                <NavLink to={"/HR/dashboard/leaves"} className={({ isActive }) => isActive ? "bg-blue-200 dark:bg-blue-800 rounded-lg" : ""}>
+                                    <SidebarMenuButton className="flex gap-4 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-lg transition-colors duration-200 w-full">
+                                        <img src="/../../src/assets/HR-Dashboard/leave.png" alt="" className="w-7 ms-2 my-1 dark:brightness-0 dark:invert" />
+                                        <span className="text-[16px] text-neutral-700 dark:text-neutral-200">Leaves</span>
+                                    </SidebarMenuButton>
+                                </NavLink>
+                            </SidebarMenuItem>
 
-                            <NavLink to={"/HR/dashboard/employees"} className={({ isActive }) => { return isActive ? "bg-blue-200 rounded-lg" : "" }}>
+                            <SidebarMenuItem>
+                                <NavLink to={"/HR/dashboard/calendar"} className={({ isActive }) => isActive ? "bg-blue-200 dark:bg-blue-800 rounded-lg" : ""}>
+                                    <SidebarMenuButton className="flex gap-4 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-lg transition-colors duration-200 w-full">
+                                        <img src="/../../src/assets/HR-Dashboard/calendar.png" alt="" className="w-7 ms-2 my-1 dark:brightness-0 dark:invert" />
+                                        <span className="text-[16px] text-neutral-700 dark:text-neutral-200">Calendar</span>
+                                    </SidebarMenuButton>
+                                </NavLink>
+                            </SidebarMenuItem>
 
-                                <SidebarMenuItem className="flex gap-4 hover:bg-blue-200 rounded-lg">
-                                    <img src="/../../src/assets/HR-Dashboard/employee-2.png" alt="" className="w-7 ms-2 my-1" />
-                                    <button className="text-[16px]">Employees</button>
-                                </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <NavLink to={"/HR/dashboard/recruitment"} className={({ isActive }) => isActive ? "bg-blue-200 dark:bg-blue-800 rounded-lg" : ""}>
+                                    <SidebarMenuButton className="flex gap-4 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-lg transition-colors duration-200 w-full">
+                                        <img src="/../../src/assets/HR-Dashboard/recruitment.png" alt="" className="w-7 ms-2 my-1 dark:brightness-0 dark:invert" />
+                                        <span className="text-[16px] text-neutral-700 dark:text-neutral-200">Recruitment</span>
+                                    </SidebarMenuButton>
+                                </NavLink>
+                            </SidebarMenuItem>
 
-                            </NavLink>
+                            <SidebarMenuItem>
+                                <NavLink to={"/HR/dashboard/interview-insights"} className={({ isActive }) => isActive ? "bg-blue-200 dark:bg-blue-800 rounded-lg" : ""}>
+                                    <SidebarMenuButton className="flex gap-4 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-lg transition-colors duration-200 w-full">
+                                        <img src="/../../src/assets/HR-Dashboard/interview.png" alt="" className="w-7 ms-2 my-1 dark:brightness-0 dark:invert" />
+                                        <span className="text-[16px] text-neutral-700 dark:text-neutral-200">Interview Insights</span>
+                                    </SidebarMenuButton>
+                                </NavLink>
+                            </SidebarMenuItem>
 
+                            <SidebarMenuItem>
+                                <NavLink to={"/HR/dashboard/requests"} className={({ isActive }) => isActive ? "bg-blue-200 dark:bg-blue-800 rounded-lg" : ""}>
+                                    <SidebarMenuButton className="flex gap-4 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-lg transition-colors duration-200 w-full">
+                                        <img src="/../../src/assets/HR-Dashboard/request.png" alt="" className="w-7 ms-2 my-1 dark:brightness-0 dark:invert" />
+                                        <span className="text-[16px] text-neutral-700 dark:text-neutral-200">Requests</span>
+                                    </SidebarMenuButton>
+                                </NavLink>
+                            </SidebarMenuItem>
 
+                            <SidebarMenuItem>
+                                <NavLink to={"/HR/dashboard/hr-profiles"} className={({ isActive }) => isActive ? "bg-blue-200 dark:bg-blue-800 rounded-lg" : ""}>
+                                    <SidebarMenuButton className="flex gap-4 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-lg transition-colors duration-200 w-full">
+                                        <img src="/../../src/assets/HR-Dashboard/HR-profiles.png" alt="" className="w-7 ms-2 my-1 dark:brightness-0 dark:invert" />
+                                        <span className="text-[16px] text-neutral-700 dark:text-neutral-200">HR Profiles</span>
+                                    </SidebarMenuButton>
+                                </NavLink>
+                            </SidebarMenuItem>
 
-                            <NavLink to={"/HR/dashboard/departments"} className={({ isActive }) => { return isActive ? "bg-blue-200 rounded-lg" : "" }}>
-
-                                <SidebarMenuItem className="flex gap-4 hover:bg-blue-200 rounded-lg">
-
-                                    <img src="/../../src/assets/HR-Dashboard/department.png" alt="" className="w-7 ms-2 my-1" />
-                                    <button className="text-[16px]">Departments</button>
-
-                                </SidebarMenuItem>
-
-                            </NavLink>
-                            <NavLink to={"/HR/dashboard/salaries"} className={({ isActive }) => { return isActive ? "bg-blue-200 rounded-lg" : "" }}>
-                                <SidebarMenuItem className="flex gap-4 hover:bg-blue-200 rounded-lg">
-                                    <img src="/../../src/assets/HR-Dashboard/salary.png" alt="" className="w-7 ms-2 my-1" />
-                                    <button className="text-[16px]">Salaries</button>
-                                 </SidebarMenuItem>
-                            </NavLink>
-                            
-
-                            <NavLink to={"/HR/dashboard/attendances"} className={({ isActive }) => { return isActive ? "bg-blue-200 rounded-lg" : "" }}>
-                                <SidebarMenuItem className="flex gap-4 hover:bg-blue-200 rounded-lg">
-                                    <img src="/../../src/assets/HR-Dashboard/attendance.png" alt="" className="w-7 ms-2 my-1" />
-                                    <button className="text-[16px]">Attendances</button>
-                                </SidebarMenuItem>
-                            </NavLink>
-
-                            <NavLink to={"/HR/dashboard/leaves"} className={({ isActive }) => { return isActive ? "bg-blue-200 rounded-lg" : "" }}>
-                                <SidebarMenuItem className="flex gap-4 hover:bg-blue-200 rounded-lg">
-                                    <img src="/../../src/assets/HR-Dashboard/leave.png" alt="" className="w-7 ms-2 my-1" />
-                                    <button className="text-[16px]">Leaves</button>
-                                </SidebarMenuItem>
-                            </NavLink>
-
-                            <NavLink to={"/HR/dashboard/calendar"} className={({ isActive }) => { return isActive ? "bg-blue-200 rounded-lg" : "" }}>
-                                <SidebarMenuItem className="flex gap-4 hover:bg-blue-200 rounded-lg">
-                                    <img src="/../../src/assets/HR-Dashboard/calendar.png" alt="" className="w-7 ms-2 my-1" />
-                                    <button className="text-[16px]">Calendar</button>
-                                </SidebarMenuItem>
-                            </NavLink>
-
-                            <NavLink to={"/HR/dashboard/recruitment"} className={({ isActive }) => { return isActive ? "bg-blue-200 rounded-lg" : "" }}>
-                                <SidebarMenuItem className="flex gap-4 hover:bg-blue-200 rounded-lg">
-                                    <img src="/../../src/assets/HR-Dashboard/recruitment.png" alt="" className="w-7 ms-2 my-1" />
-                                    <button className="text-[16px]">Recruitment</button>
-                                </SidebarMenuItem>
-                            </NavLink>
-
-                            <NavLink to={"/HR/dashboard/interview-insights"} className={({ isActive }) => { return isActive ? "bg-blue-200 rounded-lg" : "" }}>
-                                <SidebarMenuItem className="flex gap-4 hover:bg-blue-200 rounded-lg">
-                                    <img src="/../../src/assets/HR-Dashboard/interview.png" alt="" className="w-7 ms-2 my-1" />
-                                    <button className="text-[16px]">Interview Insights</button>
-                                </SidebarMenuItem>
-                            </NavLink>
-
-                            <NavLink to={"/HR/dashboard/requests"} className={({ isActive }) => { return isActive ? "bg-blue-200 rounded-lg" : "" }}>
-                                <SidebarMenuItem className="flex gap-4 hover:bg-blue-200 rounded-lg">
-                                    <img src="/../../src/assets/HR-Dashboard/request.png" alt="" className="w-7 ms-2 my-1" />
-                                    <button className="text-[16px]">Requests</button>
-                                </SidebarMenuItem>
-                            </NavLink>
-
-                            <NavLink to={"/HR/dashboard/hr-profiles"} className={({ isActive }) => { return isActive ? "bg-blue-200 rounded-lg" : "" }}>
-                                <SidebarMenuItem className="flex gap-4 hover:bg-blue-200 rounded-lg">
-                                    <img src="/../../src/assets/HR-Dashboard/HR-profiles.png" alt="" className="w-7 ms-2 my-1" />
-                                    <button className="text-[16px]">HR Profiles</button>
-                                </SidebarMenuItem>
-                            </NavLink>
-
-                            <NavLink to={"/HR/dashboard/settings"} className={({ isActive }) => { return isActive ? "bg-blue-200 rounded-lg" : "" }}>
-                                <SidebarMenuItem className="flex gap-4 hover:bg-blue-200 rounded-lg">
-                                    <img src="/../../src/assets/HR-Dashboard/settings.png" alt="" className="w-7 ms-2 my-1" />
-                                    <button className="text-[16px]">Settings</button>
-                                </SidebarMenuItem>
-                            </NavLink>
+                            <SidebarMenuItem>
+                                <NavLink to={"/HR/dashboard/settings"} className={({ isActive }) => isActive ? "bg-blue-200 dark:bg-blue-800 rounded-lg" : ""}>
+                                    <SidebarMenuButton className="flex gap-4 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-lg transition-colors duration-200 w-full">
+                                        <img src="/../../src/assets/HR-Dashboard/settings.png" alt="" className="w-7 ms-2 my-1 dark:brightness-0 dark:invert" />
+                                        <span className="text-[16px] text-neutral-700 dark:text-neutral-200">Settings</span>
+                                    </SidebarMenuButton>
+                                </NavLink>
+                            </SidebarMenuItem>
 
                         </SidebarMenu>
-
                     </SidebarGroupContent>
                 </SidebarGroup>
-            </SidebarContent>
-            
-            <SidebarFooter className="p-2">
+            </SidebarContent>            <SidebarFooter className="p-2 border-t border-sidebar-border">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <button 
+                        <SidebarMenuButton 
                             onClick={handleHRLogout}
                             disabled={isLoggingOut}
-                            className="flex gap-4 w-full p-2 hover:bg-red-100 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex gap-4 w-full p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <img 
                                 src="/../../src/assets/HR-Dashboard/logout.png" 
                                 alt="Logout" 
-                                className="w-7 ms-2 my-1" 
+                                className="w-7 ms-2 my-1 dark:brightness-0 dark:invert" 
                             />
-                            <span className="text-[16px] text-red-600 font-medium">
+                            <span className="text-[16px] text-red-600 dark:text-red-400 font-medium">
                                 {isLoggingOut ? "Logging out..." : "Logout"}
                             </span>
-                        </button>
+                        </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarFooter>
         </Sidebar>
     )
-
 }
