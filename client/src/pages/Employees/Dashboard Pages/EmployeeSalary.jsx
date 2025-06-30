@@ -18,6 +18,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { 
+  DollarSign, 
+  TrendingUp, 
+  Calendar, 
+  Award, 
+  CreditCard, 
+  PiggyBank,
+  Receipt,
+  BarChart3,
+  CheckCircle,
+  Clock,
+  XCircle
+} from 'lucide-react';
 
 if (!axios.defaults.baseURL) {
   axios.defaults.baseURL = 'http://localhost:5001';
@@ -88,90 +101,107 @@ const EmployeeSalary = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-400 border-t-transparent mx-auto mb-6"></div>
+            <div className="absolute inset-0 rounded-full h-16 w-16 border-4 border-blue-400 border-t-transparent mx-auto animate-spin" style={{ animationDelay: '0.5s', animationDirection: 'reverse' }}></div>
+          </div>
+          <p className="text-white text-lg font-medium">Loading salary information...</p>
+        </div>
       </div>
     );
   }
 
   if (!salaryData) {
     return (
-      <div className="employee-salary p-6">
+      <div className="min-h-screen p-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Salary Information</h1>
-          <p className="text-gray-600 mt-2">View your salary details and payment history</p>
+          <h1 className="text-4xl font-bold text-white">My Salary Information</h1>
+          <p className="text-gray-300 text-lg mt-2">View your salary details and payment history</p>
         </div>
         
-        <Card>
-          <CardContent className="text-center py-12">
-            <div className="text-gray-500">
-              <div className="text-6xl mb-4">💰</div>
-              <h3 className="text-xl font-medium mb-2">No Salary Information Available</h3>
-              <p>Your salary information has not been set up yet. Please contact HR for assistance.</p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl text-center">
+          <div className="text-6xl mb-6">💰</div>
+          <h3 className="text-2xl font-bold text-white mb-4">No Salary Information Available</h3>
+          <p className="text-gray-300 text-lg">Your salary information has not been set up yet. Please contact HR for assistance.</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="employee-salary p-6">
+    <div className="min-h-screen p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">My Salary Information</h1>
-        <p className="text-gray-600 mt-2">View your salary details and payment history</p>
+        <h1 className="text-4xl font-bold text-white flex items-center gap-3">
+          <DollarSign className="w-10 h-10 text-green-400" />
+          My Salary Information
+        </h1>
+        <p className="text-gray-300 text-lg mt-2">View your salary details and payment history</p>
       </div>
 
       {/* Current Salary Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Monthly Salary</CardTitle>
-            <CardDescription>Gross monthly pay</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">
-              {formatCurrency(salaryData.basicpay)}
+        <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-3xl p-6 shadow-2xl transform transition-all duration-300 hover:scale-105">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-gray-300 text-sm font-medium">Monthly Salary</h3>
+              <p className="text-gray-400 text-xs">Gross monthly pay</p>
             </div>
-          </CardContent>
-        </Card>
+            <div className="p-3 bg-green-500/20 rounded-xl">
+              <DollarSign className="w-6 h-6 text-green-400" />
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-green-400">
+            {formatCurrency(salaryData.basicpay)}
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Annual Salary</CardTitle>
-            <CardDescription>Total yearly compensation</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-600">
-              {formatCurrency(calculateAnnualSalary(salaryData.basicpay))}
+        <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-3xl p-6 shadow-2xl transform transition-all duration-300 hover:scale-105">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-gray-300 text-sm font-medium">Annual Salary</h3>
+              <p className="text-gray-400 text-xs">Total yearly compensation</p>
             </div>
-          </CardContent>
-        </Card>
+            <div className="p-3 bg-blue-500/20 rounded-xl">
+              <TrendingUp className="w-6 h-6 text-blue-400" />
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-blue-400">
+            {formatCurrency(calculateAnnualSalary(salaryData.basicpay))}
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Bonuses</CardTitle>
-            <CardDescription>Monthly bonuses</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-purple-600">
-              {formatCurrency(salaryData.bonuses || 0)}
+        <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-3xl p-6 shadow-2xl transform transition-all duration-300 hover:scale-105">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-gray-300 text-sm font-medium">Bonuses</h3>
+              <p className="text-gray-400 text-xs">Monthly bonuses</p>
             </div>
-          </CardContent>
-        </Card>
+            <div className="p-3 bg-purple-500/20 rounded-xl">
+              <Award className="w-6 h-6 text-purple-400" />
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-purple-400">
+            {formatCurrency(salaryData.bonuses || 0)}
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Net Salary</CardTitle>
-            <CardDescription>Take-home pay</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-orange-600">
-              {formatCurrency(salaryData.netpay)}
+        <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-3xl p-6 shadow-2xl transform transition-all duration-300 hover:scale-105">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-gray-300 text-sm font-medium">Net Salary</h3>
+              <p className="text-gray-400 text-xs">Take-home pay</p>
             </div>
-          </CardContent>
-        </Card>
+            <div className="p-3 bg-orange-500/20 rounded-xl">
+              <PiggyBank className="w-6 h-6 text-orange-400" />
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-orange-400">
+            {formatCurrency(salaryData.netpay)}
+          </div>
+        </div>
 
       </div>
 
@@ -179,177 +209,208 @@ const EmployeeSalary = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         
         {/* Earnings Breakdown */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Earnings Breakdown</CardTitle>
-            <CardDescription>Monthly earnings components</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="font-medium">Basic Salary</span>
-                <span>{formatCurrency(salaryData.basicpay)}</span>
-              </div>
-              
-              {salaryData.bonuses > 0 && (
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="font-medium">Bonuses</span>
-                  <span>{formatCurrency(salaryData.bonuses)}</span>
-                </div>
-              )}
-              
-              <div className="flex justify-between items-center py-2 font-bold text-lg border-t-2">
-                <span>Gross Salary</span>
-                <span>{formatCurrency(
-                  (salaryData.basicpay || 0) + (salaryData.bonuses || 0)
-                )}</span>
-              </div>
+        <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-3xl p-6 shadow-2xl">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+              <BarChart3 className="w-6 h-6 text-green-400" />
+              Earnings Breakdown
+            </h2>
+            <p className="text-gray-300">Monthly earnings components</p>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="flex justify-between items-center py-3 border-b border-white/10">
+              <span className="font-medium text-gray-200 flex items-center gap-2">
+                <DollarSign className="w-4 h-4 text-green-400" />
+                Basic Salary
+              </span>
+              <span className="text-white font-bold">{formatCurrency(salaryData.basicpay)}</span>
             </div>
-          </CardContent>
-        </Card>
+            
+            {salaryData.bonuses > 0 && (
+              <div className="flex justify-between items-center py-3 border-b border-white/10">
+                <span className="font-medium text-gray-200 flex items-center gap-2">
+                  <Award className="w-4 h-4 text-purple-400" />
+                  Bonuses
+                </span>
+                <span className="text-white font-bold">{formatCurrency(salaryData.bonuses)}</span>
+              </div>
+            )}
+            
+            <div className="flex justify-between items-center py-3 font-bold text-lg border-t-2 border-green-400/30 bg-green-500/10 rounded-xl px-4">
+              <span className="text-green-300">Gross Salary</span>
+              <span className="text-green-300">{formatCurrency(
+                (salaryData.basicpay || 0) + (salaryData.bonuses || 0)
+              )}</span>
+            </div>
+          </div>
+        </div>
 
         {/* Deductions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Deductions</CardTitle>
-            <CardDescription>Monthly deductions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {salaryData.deductions > 0 && (
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="font-medium">Total Deductions</span>
-                  <span className="text-red-600">-{formatCurrency(salaryData.deductions)}</span>
-                </div>
-              )}
-              
-              <div className="flex justify-between items-center py-2 font-bold text-lg border-t-2">
-                <span>Total Deductions</span>
-                <span className="text-red-600">-{formatCurrency(salaryData.deductions || 0)}</span>
+        <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-3xl p-6 shadow-2xl">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+              <Receipt className="w-6 h-6 text-red-400" />
+              Deductions
+            </h2>
+            <p className="text-gray-300">Monthly deductions</p>
+          </div>
+          
+          <div className="space-y-4">
+            {salaryData.deductions > 0 && (
+              <div className="flex justify-between items-center py-3 border-b border-white/10">
+                <span className="font-medium text-gray-200 flex items-center gap-2">
+                  <XCircle className="w-4 h-4 text-red-400" />
+                  Total Deductions
+                </span>
+                <span className="text-red-400 font-bold">-{formatCurrency(salaryData.deductions)}</span>
               </div>
+            )}
+            
+            <div className="flex justify-between items-center py-3 font-bold text-lg border-t-2 border-red-400/30 bg-red-500/10 rounded-xl px-4">
+              <span className="text-red-300">Total Deductions</span>
+              <span className="text-red-300">-{formatCurrency(salaryData.deductions || 0)}</span>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
       </div>
 
       {/* Additional Information */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Salary Information</CardTitle>
-            <CardDescription>Additional details</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Due Date</span>
-                <span className="font-medium">
-                  {moment(salaryData.duedate).format('MMM DD, YYYY')}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Payment Status</span>
-                <span className="font-medium">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    salaryData.status === 'Paid' ? 'bg-green-100 text-green-800' :
-                    salaryData.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {salaryData.status}
-                  </span>
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Currency</span>
-                <span className="font-medium">{salaryData.currency}</span>
-              </div>
-              {salaryData.paymentdate && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Payment Date</span>
-                  <span className="font-medium">
-                    {moment(salaryData.paymentdate).format('MMM DD, YYYY')}
-                  </span>
-                </div>
-              )}
+        <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-3xl p-6 shadow-2xl">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+              <Calendar className="w-6 h-6 text-blue-400" />
+              Salary Information
+            </h2>
+            <p className="text-gray-300">Additional details</p>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="flex justify-between items-center py-2">
+              <span className="text-gray-300 flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-blue-400" />
+                Due Date
+              </span>
+              <span className="font-medium text-white">
+                {moment(salaryData.duedate).format('MMM DD, YYYY')}
+              </span>
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex justify-between items-center py-2">
+              <span className="text-gray-300 flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                Payment Status
+              </span>
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                salaryData.status === 'Paid' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                salaryData.status === 'Pending' ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' :
+                'bg-red-500/20 text-red-300 border border-red-500/30'
+              }`}>
+                {salaryData.status}
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-2">
+              <span className="text-gray-300 flex items-center gap-2">
+                <DollarSign className="w-4 h-4 text-green-400" />
+                Currency
+              </span>
+              <span className="font-medium text-white">{salaryData.currency}</span>
+            </div>
+            {salaryData.paymentdate && (
+              <div className="flex justify-between items-center py-2">
+                <span className="text-gray-300 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-purple-400" />
+                  Payment Date
+                </span>
+                <span className="font-medium text-white">
+                  {moment(salaryData.paymentdate).format('MMM DD, YYYY')}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Annual Summary</CardTitle>
-            <CardDescription>Year-to-date information</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-600">YTD Gross</span>
-                <span className="font-medium">
-                  {formatCurrency(calculateAnnualSalary(salaryData.basicpay))}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">YTD Deductions</span>
-                <span className="font-medium text-red-600">
-                  -{formatCurrency((salaryData.deductions || 0) * 12)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">YTD Net</span>
-                <span className="font-medium">
-                  {formatCurrency(calculateAnnualSalary(salaryData.netpay))}
-                </span>
-              </div>
+        <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-3xl p-6 shadow-2xl">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+              <TrendingUp className="w-6 h-6 text-cyan-400" />
+              Annual Summary
+            </h2>
+            <p className="text-gray-300">Year-to-date information</p>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="flex justify-between items-center py-2">
+              <span className="text-gray-300">YTD Gross</span>
+              <span className="font-medium text-green-400">
+                {formatCurrency(calculateAnnualSalary(salaryData.basicpay))}
+              </span>
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex justify-between items-center py-2">
+              <span className="text-gray-300">YTD Deductions</span>
+              <span className="font-medium text-red-400">
+                -{formatCurrency((salaryData.deductions || 0) * 12)}
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-t border-white/10 pt-4">
+              <span className="text-gray-300 font-bold">YTD Net</span>
+              <span className="font-bold text-white text-lg">
+                {formatCurrency(calculateAnnualSalary(salaryData.netpay))}
+              </span>
+            </div>
+          </div>
+        </div>
 
       </div>
 
       {/* Salary History */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Salary History</CardTitle>
-          <CardDescription>Your salary changes over time</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-3xl p-6 shadow-2xl">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+            <BarChart3 className="w-6 h-6 text-purple-400" />
+            Salary History
+          </h2>
+          <p className="text-gray-300">Your salary changes over time</p>
+        </div>
+        
+        <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Due Date</TableHead>
-                <TableHead>Basic Salary</TableHead>
-                <TableHead>Bonuses</TableHead>
-                <TableHead>Deductions</TableHead>
-                <TableHead>Net Salary</TableHead>
-                <TableHead>Status</TableHead>
+              <TableRow className="border-white/10 hover:bg-white/5">
+                <TableHead className="text-gray-200 font-semibold">Due Date</TableHead>
+                <TableHead className="text-gray-200 font-semibold">Basic Salary</TableHead>
+                <TableHead className="text-gray-200 font-semibold">Bonuses</TableHead>
+                <TableHead className="text-gray-200 font-semibold">Deductions</TableHead>
+                <TableHead className="text-gray-200 font-semibold">Net Salary</TableHead>
+                <TableHead className="text-gray-200 font-semibold">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {salaryHistory.length > 0 ? (
                 salaryHistory.map((salary) => (
-                  <TableRow key={salary._id}>
-                    <TableCell>
+                  <TableRow key={salary._id} className="border-white/10 hover:bg-white/5 transition-colors">
+                    <TableCell className="text-white">
                       {moment(salary.duedate).format('MMM DD, YYYY')}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-white font-medium">
                       {formatCurrency(salary.basicpay)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-purple-400 font-medium">
                       {formatCurrency(salary.bonuses || 0)}
                     </TableCell>
-                    <TableCell className="text-red-600">
+                    <TableCell className="text-red-400 font-medium">
                       -{formatCurrency(salary.deductions || 0)}
                     </TableCell>
-                    <TableCell className="font-medium">
+                    <TableCell className="text-green-400 font-bold">
                       {formatCurrency(salary.netpay)}
                     </TableCell>
                     <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        salary.status === 'Paid' ? 'bg-green-100 text-green-800' :
-                        salary.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        salary.status === 'Paid' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                        salary.status === 'Pending' ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' :
+                        'bg-red-500/20 text-red-300 border border-red-500/30'
                       }`}>
                         {salary.status}
                       </span>
@@ -357,16 +418,16 @@ const EmployeeSalary = () => {
                   </TableRow>
                 ))
               ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-gray-500">
+                <TableRow className="border-white/10">
+                  <TableCell colSpan={6} className="text-center text-gray-400 py-8">
                     No salary history found
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

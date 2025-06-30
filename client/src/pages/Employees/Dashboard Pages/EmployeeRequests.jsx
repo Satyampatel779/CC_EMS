@@ -29,7 +29,12 @@ import {
   MessageSquare,
   Edit,
   AlertCircle,
-  X
+  X,
+  Send,
+  Filter,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle
 } from 'lucide-react';
 import { 
   fetchEmployeeRequests, 
@@ -159,31 +164,31 @@ const EmployeeRequests = () => {
   };  const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case 'pending':
-        return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200';
+        return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
       case 'approved':
-        return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200';
+        return 'bg-green-500/20 text-green-300 border-green-500/30';
       case 'denied':
       case 'rejected':
-        return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200';
+        return 'bg-red-500/20 text-red-300 border-red-500/30';
       case 'in review':
-        return 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200';
+        return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
       case 'closed':
-        return 'bg-gray-100 dark:bg-neutral-700 text-gray-800 dark:text-neutral-300';
+        return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
       default:
-        return 'bg-gray-100 dark:bg-neutral-700 text-gray-800 dark:text-neutral-300';
+        return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
     }
   };
 
   const getPriorityColor = (priority) => {
     switch (priority?.toLowerCase()) {
       case 'high':
-        return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200';
+        return 'bg-red-500/20 text-red-300 border-red-500/30';
       case 'medium':
-        return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200';
+        return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
       case 'low':
-        return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200';
+        return 'bg-green-500/20 text-green-300 border-green-500/30';
       default:
-        return 'bg-gray-100 dark:bg-neutral-700 text-gray-800 dark:text-neutral-300';
+        return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
     }
   };
 
@@ -196,28 +201,53 @@ const EmployeeRequests = () => {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-32 bg-gray-200 rounded"></div>
-          <div className="h-32 bg-gray-200 rounded"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-400 border-t-transparent mx-auto mb-6"></div>
+            <div className="absolute inset-0 rounded-full h-16 w-16 border-4 border-blue-400 border-t-transparent mx-auto animate-spin" style={{ animationDelay: '0.5s', animationDirection: 'reverse' }}></div>
+          </div>
+          <p className="text-white text-lg font-medium">Loading your requests...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Requests</h1>
-          <p className="text-gray-600 mt-1">Submit and track your requests to HR and IT support</p>
+    <div className="min-h-screen p-6 space-y-8">
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-xl shadow-lg border backdrop-blur-lg transition-all duration-300 ${
+          toast.type === 'success' ? 'bg-green-500/20 border-green-500/30 text-green-300' :
+          toast.type === 'error' ? 'bg-red-500/20 border-red-500/30 text-red-300' :
+          'bg-blue-500/20 border-blue-500/30 text-blue-300'
+        }`}>
+          <div className="flex items-center gap-2">
+            {toast.type === 'success' && <CheckCircle2 className="w-5 h-5" />}
+            {toast.type === 'error' && <XCircle className="w-5 h-5" />}
+            {toast.type === 'info' && <AlertTriangle className="w-5 h-5" />}
+            <span className="font-medium">{toast.message}</span>
+          </div>
         </div>
+      )}
+
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-4xl font-bold text-white flex items-center gap-3">
+            <MessageSquare className="w-10 h-10 text-purple-400" />
+            My Requests
+          </h1>
+          <p className="text-gray-300 text-lg mt-2">Submit and track your requests to HR and IT support</p>
+        </div>
+        
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
+            <Button 
+              onClick={resetDialog}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-3 rounded-xl shadow-lg transform transition-all duration-200 hover:scale-105 flex items-center gap-2"
+            >
+              <Plus className="h-5 w-5" />
               New Request
             </Button>
           </DialogTrigger>          <DialogContent className="max-w-md">

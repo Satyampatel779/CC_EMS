@@ -31,9 +31,26 @@ const HumanResourcesSchema = new Schema({
     },
     role: {
         type: String,
-        enum: ["HR-Admin", "Employee"],
+        enum: ["HR-Admin", "HR_Director", "HR_Manager", "HR_Specialist", "HR_Assistant", "Employee"],
         required: true,
         default: "HR-Admin"
+    },
+    status: {
+        type: String,
+        enum: ["active", "inactive", "suspended"],
+        default: "active"
+    },
+    permissions: {
+        canCreateEmployee: { type: Boolean, default: false },
+        canEditEmployee: { type: Boolean, default: false },
+        canDeleteEmployee: { type: Boolean, default: false },
+        canViewSalary: { type: Boolean, default: false },
+        canManageSalary: { type: Boolean, default: false },
+        canManageLeaves: { type: Boolean, default: false },
+        canManageRecruitment: { type: Boolean, default: false },
+        canManageRequests: { type: Boolean, default: false },
+        canViewReports: { type: Boolean, default: false },
+        canManageCalendar: { type: Boolean, default: false }
     },
     lastlogin: {
         type: Date,

@@ -72,20 +72,20 @@ export const HRDepartmentTabs = () => {
             dispatch(HandleGetHRDepartments({ apiroute: "GETALL" }))
         }
 
-        if (HRDepartmentState.error.status) {
+        if (HRDepartmentState.error?.status) {
             toast({
                 variant: "destructive",
                 title: "Uh oh! Something went wrong.",
-                description: `${HRDepartmentState.error.message}`,
+                description: `${HRDepartmentState.error?.message}`,
             })
         }
 
-        if (HRDepartmentState.success.status) {
+        if (HRDepartmentState.success?.status) {
             toast({
                 title: <p className="text-xl m-1">Success!</p>,
                 description: <div className="flex justify-center items-center gap-2">
                     <img src="../../src/assets/HR-Dashboard/correct.png" alt="" className="w-6" />
-                    <p className="font-bold">{HRDepartmentState.success.message}</p>
+                    <p className="font-bold">{HRDepartmentState.success?.message}</p>
                 </div>,
             })
         }

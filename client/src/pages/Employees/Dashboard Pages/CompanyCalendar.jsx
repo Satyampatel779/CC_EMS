@@ -203,211 +203,240 @@ const CompanyCalendar = () => {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Company Calendar</h1>
-          <p className="text-gray-600 mt-1">View company events, holidays, and important dates</p>
+    <div className="h-full overflow-y-auto">
+      <div className="p-6 md:p-8 space-y-8">
+        {/* Header */}
+        <div className="text-center md:text-left">
+          <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+            <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl shadow-lg">
+              <Calendar className="h-8 w-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-white drop-shadow-xl">Company Calendar</h1>
+              <p className="text-gray-200 text-lg mt-1 drop-shadow-md">View company events, holidays, and important dates</p>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Calendar */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl">
-                  {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigateMonth(-1)}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentDate(new Date())}
-                  >
-                    Today
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigateMonth(1)}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-7 gap-1 mb-4">
-                {dayNames.map(day => (
-                  <div key={day} className="p-2 text-center text-sm font-medium text-gray-500">
-                    {day}
-                  </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-7 gap-1">
-                {days.map((day, index) => {
-                  const dayEvents = getEventsForDay(day);
-                  const isToday = day && 
-                    new Date().getDate() === day && 
-                    new Date().getMonth() === currentDate.getMonth() && 
-                    new Date().getFullYear() === currentDate.getFullYear();
-                  
-                  return (
-                    <div
-                      key={index}
-                      className={`min-h-[100px] p-1 border border-gray-200 ${
-                        day ? 'bg-white hover:bg-gray-50' : 'bg-gray-50'
-                      } ${isToday ? 'bg-blue-50 border-blue-300' : ''}`}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Calendar */}
+          <div className="lg:col-span-2">
+            <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-3xl p-6 shadow-2xl">
+              <div className="mb-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-white drop-shadow-md">
+                    {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigateMonth(-1)}
+                      className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-blue-100 transition-colors"
                     >
-                      {day && (
-                        <>
-                          <div className={`text-sm font-medium ${isToday ? 'text-blue-600' : 'text-gray-900'}`}>
-                            {day}
-                          </div>
-                          <div className="space-y-1 mt-1">
-                            {dayEvents.slice(0, 2).map(event => (
-                              <div
-                                key={event.id}
-                                className={`text-xs p-1 rounded text-center truncate ${getEventTypeColor(event.type)}`}
-                                title={event.title}
-                              >
-                                {getEventTypeIcon(event.type)} {event.title}
-                              </div>
-                            ))}
-                            {dayEvents.length > 2 && (
-                              <div className="text-xs text-gray-500 text-center">
-                                +{dayEvents.length - 2} more
-                              </div>
-                            )}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  );
-                })}
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentDate(new Date())}
+                      className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-blue-100 transition-colors"
+                    >
+                      Today
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigateMonth(1)}
+                      className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-blue-100 transition-colors"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Filters */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Filters</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search events..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Filter by type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Events</SelectItem>
-                  <SelectItem value="holiday">Holidays</SelectItem>
-                  <SelectItem value="meeting">Meetings</SelectItem>
-                  <SelectItem value="event">Events</SelectItem>
-                  <SelectItem value="training">Training</SelectItem>
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
-
-          {/* Upcoming Events */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Upcoming Events</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {upcomingEvents.map(event => (
-                  <div key={event.id} className="border border-gray-200 rounded-lg p-3">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-medium text-sm">{event.title}</h4>
-                      <Badge className={getEventTypeColor(event.type)} variant="outline">
-                        {event.type}
-                      </Badge>
+              
+              <div>
+                <div className="grid grid-cols-7 gap-1 mb-4">
+                  {dayNames.map(day => (
+                    <div key={day} className="p-3 text-center text-sm font-semibold text-gray-200 drop-shadow-sm">
+                      {day}
                     </div>
-                    <div className="space-y-1 text-xs text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {new Date(event.date).toLocaleDateString()}
+                  ))}
+                </div>
+                <div className="grid grid-cols-7 gap-1">
+                  {days.map((day, index) => {
+                    const dayEvents = getEventsForDay(day);
+                    const isToday = day && 
+                      new Date().getDate() === day && 
+                      new Date().getMonth() === currentDate.getMonth() && 
+                      new Date().getFullYear() === currentDate.getFullYear();
+                    
+                    return (
+                      <div
+                        key={index}
+                        className={`min-h-[100px] p-2 border border-white/10 rounded-lg ${
+                          day ? 'bg-white/5 hover:bg-white/10 backdrop-blur-sm' : 'bg-transparent'
+                        } ${isToday ? 'bg-blue-500/20 border-blue-400/50 shadow-lg' : ''} transition-all duration-300`}
+                      >
+                        {day && (
+                          <>
+                            <div className={`text-sm font-bold mb-1 drop-shadow-md ${isToday ? 'text-blue-200' : 'text-white'}`}>
+                              {day}
+                            </div>
+                            <div className="space-y-1">
+                              {dayEvents.slice(0, 2).map(event => (
+                                <div
+                                  key={event.id}
+                                  className={`text-xs p-1 rounded text-center truncate border backdrop-blur-sm ${
+                                    event.type === 'holiday' ? 'bg-red-500/20 text-red-200 border-red-400/30' :
+                                    event.type === 'meeting' ? 'bg-blue-500/20 text-blue-200 border-blue-400/30' :
+                                    event.type === 'event' ? 'bg-purple-500/20 text-purple-200 border-purple-400/30' :
+                                    event.type === 'training' ? 'bg-green-500/20 text-green-200 border-green-400/30' :
+                                    'bg-gray-500/20 text-gray-200 border-gray-400/30'
+                                  }`}
+                                  title={event.title}
+                                >
+                                  {getEventTypeIcon(event.type)} {event.title}
+                                </div>
+                              ))}
+                              {dayEvents.length > 2 && (
+                                <div className="text-xs text-gray-300 text-center font-medium drop-shadow-md">
+                                  +{dayEvents.length - 2} more
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
                       </div>
-                      {!event.isAllDay && (
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Filters */}
+            <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-3xl p-6 shadow-2xl">
+              <div className="mb-4">
+                <h3 className="text-xl font-bold text-white mb-2 drop-shadow-md flex items-center gap-2">
+                  <Filter className="w-5 h-5 text-purple-200" />
+                  Filters
+                </h3>
+              </div>
+              <div className="space-y-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-300" />
+                  <Input
+                    placeholder="Search events..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 bg-white/5 border-white/20 text-white placeholder-gray-300 rounded-xl focus:border-purple-400 focus:ring-purple-400/20"
+                  />
+                </div>
+                <Select value={filterType} onValueChange={setFilterType}>
+                  <SelectTrigger className="bg-white/5 border-white/20 text-white rounded-xl focus:border-purple-400">
+                    <SelectValue placeholder="Filter by type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-600 text-white">
+                    <SelectItem value="all">All Events</SelectItem>
+                    <SelectItem value="holiday">Holidays</SelectItem>
+                    <SelectItem value="meeting">Meetings</SelectItem>
+                    <SelectItem value="event">Events</SelectItem>
+                    <SelectItem value="training">Training</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Upcoming Events */}
+            <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-3xl p-6 shadow-2xl">
+              <div className="mb-4">
+                <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-blue-200" />
+                  Upcoming Events
+                </h3>
+              </div>
+              <div>
+                <div className="space-y-3">
+                  {upcomingEvents.map(event => (
+                    <div key={event.id} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-all duration-300">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="font-semibold text-white text-sm">{event.title}</h4>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${
+                          event.type === 'holiday' ? 'bg-red-500/20 text-red-200 border-red-400/30' :
+                          event.type === 'meeting' ? 'bg-blue-500/20 text-blue-200 border-blue-400/30' :
+                          event.type === 'event' ? 'bg-purple-500/20 text-purple-200 border-purple-400/30' :
+                          event.type === 'training' ? 'bg-green-500/20 text-green-200 border-green-400/30' :
+                          'bg-gray-500/20 text-gray-200 border-gray-400/30'
+                        }`}>
+                          {event.type}
+                        </span>
+                      </div>
+                      <div className="space-y-1 text-xs text-gray-300">
                         <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {event.startTime} - {event.endTime}
+                          <Calendar className="h-3 w-3" />
+                          {new Date(event.date).toLocaleDateString()}
                         </div>
-                      )}
-                      {event.location && (
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {event.location}
-                        </div>
+                        {!event.isAllDay && (
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {event.startTime} - {event.endTime}
+                          </div>
+                        )}
+                        {event.location && (
+                          <div className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {event.location}
+                          </div>
+                        )}
+                      </div>
+                      {event.description && (
+                        <p className="text-xs text-gray-400 mt-2 line-clamp-2">
+                          {event.description}
+                        </p>
                       )}
                     </div>
-                    {event.description && (
-                      <p className="text-xs text-gray-500 mt-2 line-clamp-2">
-                        {event.description}
-                      </p>
-                    )}
-                  </div>
-                ))}
-                {upcomingEvents.length === 0 && (
-                  <div className="text-center py-4">
-                    <Calendar className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-500">No upcoming events</p>
-                  </div>
-                )}
+                  ))}
+                  {upcomingEvents.length === 0 && (
+                    <div className="text-center py-6">
+                      <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-3 opacity-50" />
+                      <p className="text-gray-300 text-sm">No upcoming events</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Legend */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Event Types</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-red-200 border border-red-300"></div>
-                  <span className="text-sm">Holidays</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-blue-200 border border-blue-300"></div>
-                  <span className="text-sm">Meetings</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-purple-200 border border-purple-300"></div>
-                  <span className="text-sm">Events</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-green-200 border border-green-300"></div>
-                  <span className="text-sm">Training</span>
+            {/* Legend */}
+            <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-3xl p-6 shadow-2xl">
+              <div className="mb-4">
+                <h3 className="text-xl font-bold text-white mb-2">Event Types</h3>
+              </div>
+              <div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded bg-red-500/30 border border-red-400/50"></div>
+                    <span className="text-sm text-gray-200 font-medium drop-shadow-sm">Holidays</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded bg-blue-500/30 border border-blue-400/50"></div>
+                    <span className="text-sm text-gray-200 font-medium drop-shadow-sm">Meetings</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded bg-purple-500/30 border border-purple-400/50"></div>
+                    <span className="text-sm text-gray-200 font-medium drop-shadow-sm">Events</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded bg-green-500/30 border border-green-400/50"></div>
+                    <span className="text-sm text-gray-200 font-medium drop-shadow-sm">Training</span>
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>

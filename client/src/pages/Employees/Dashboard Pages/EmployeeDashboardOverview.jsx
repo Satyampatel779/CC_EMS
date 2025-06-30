@@ -14,6 +14,22 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import AttendanceButton from "@/components/AttendanceButton";
 import NewAttendanceButton from "@/components/NewAttendanceButton";
+import { 
+  Clock, 
+  Calendar, 
+  Users, 
+  TrendingUp, 
+  Award, 
+  CheckCircle, 
+  AlertCircle,
+  Timer,
+  Target,
+  BarChart3,
+  DollarSign,
+  FileText,
+  Sun,
+  Moon
+} from "lucide-react";
 
 if (!apiService.defaults.baseURL) apiService.defaults.baseURL = 'http://localhost:5001';
 
@@ -76,156 +92,228 @@ const EmployeeDashboardOverview = () => {
     setTodayAttendance(data.todayAttendance);
   };
 
+  const getGreeting = () => {
+    const hour = moment().hour();
+    if (hour < 12) return { greeting: "Good Morning", icon: Sun };
+    if (hour < 17) return { greeting: "Good Afternoon", icon: Sun };
+    return { greeting: "Good Evening", icon: Moon };
+  };
+
+  const { greeting, icon: GreetingIcon } = getGreeting();
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-white text-lg">Loading your dashboard...</p>
+        </div>
       </div>
     );
   }
+
+  const dashboardStats = [
+    {
+      title: "Attendance Status",
+      value: clockStatus ? "Checked In" : "Checked Out",
+      icon: Clock,
+      color: clockStatus ? "text-green-400" : "text-orange-400",
+      bgColor: clockStatus ? "bg-green-500/10" : "bg-orange-500/10"
+    },
+    {
+      title: "This Month",
+      value: "22 Days",
+      icon: Calendar,
+      color: "text-blue-400",
+      bgColor: "bg-blue-500/10"
+    },
+    {
+      title: "Performance",
+      value: "Excellent",
+      icon: TrendingUp,
+      color: "text-purple-400",
+      bgColor: "bg-purple-500/10"
+    },
+    {
+      title: "Team Rating",
+      value: "4.8★",
+      icon: Award,
+      color: "text-yellow-400",
+      bgColor: "bg-yellow-500/10"
+    }
+  ];
+
+  const quickActions = [
+    { title: "View Attendance", icon: Clock, description: "Check your attendance history" },
+    { title: "Request Leave", icon: Calendar, description: "Submit a new leave request" },
+    { title: "View Salary", icon: DollarSign, description: "Check your salary details" },
+    { title: "My Documents", icon: FileText, description: "Access your documents" }
+  ];
+
   return (
-    <div className="employee-dashboard-overview p-6 bg-white dark:bg-neutral-900 min-h-screen">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-neutral-100">
-          Welcome back, {employeeData?.firstname || employeeData?.firstName || user?.firstName || 'Employee'}!
-        </h1>
-        <p className="text-gray-600 dark:text-neutral-400 mt-2">
-          {moment().format('dddd, MMMM Do YYYY')}
-        </p>
-      </div>
+    <div className="h-full overflow-y-auto">
+      <div className="p-6 md:p-8 space-y-8">
+        {/* Welcome Header */}
+        <div className="text-center md:text-left">
+          <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+            <div className="p-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl shadow-lg">
+              <GreetingIcon className="h-8 w-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-white">
+                {greeting}, {employeeData?.firstname || employeeData?.firstName || user?.firstName || 'Employee'}!
+              </h1>
+              <p className="text-gray-300 text-lg mt-1">
+                {moment().format('dddd, MMMM Do YYYY')}
+              </p>
+            </div>
+          </div>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Clock In/Out Card */}
-        <Card className="col-span-1 md:col-span-2 lg:col-span-1 bg-white dark:bg-neutral-800 border-gray-200 dark:border-neutral-700">
-          <CardHeader>
-            <CardTitle className="text-gray-900 dark:text-neutral-100">Time Tracking</CardTitle>
-            <CardDescription className="text-gray-600 dark:text-neutral-400">Clock in/out for today</CardDescription>
-          </CardHeader>          <CardContent>
-            <div className="text-center">
-              <div className="text-6xl mb-4 text-gray-900 dark:text-neutral-100">
-                {moment().format('HH:mm')}
-              </div>
-              <div className="mb-4">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  clockStatus 
-                    ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400' 
-                    : 'bg-gray-100 dark:bg-neutral-700 text-gray-800 dark:text-neutral-300'
-                }`}>
-                  {clockStatus ? 'Clocked In' : 'Clocked Out'}
-                </span>
-              </div>              
-              {todayAttendance && (
-                <div className="text-sm text-gray-600 dark:text-neutral-400 mb-4">
-                  {todayAttendance.checkInTime && (
-                    <div>Clocked in at: {todayAttendance.checkInTime}</div>
-                  )}
-                  {todayAttendance.checkOutTime && (
-                    <div>Clocked out at: {todayAttendance.checkOutTime}</div>
-                  )}
-                  {todayAttendance.workHours && (
-                    <div>Work hours: {todayAttendance.workHours.toFixed(2)}h</div>
-                  )}
-                </div>
-              )}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <div style={{ width: '100%' }}>
-              <NewAttendanceButton 
-                onUpdate={handleAttendanceChange}
-              />
-            </div>
-          </CardFooter>
-        </Card>        {/* Quick Stats */}
-        <Card className="bg-white dark:bg-neutral-800 border-gray-200 dark:border-neutral-700">
-          <CardHeader>
-            <CardTitle className="text-gray-900 dark:text-neutral-100">This Month</CardTitle>
-            <CardDescription className="text-gray-600 dark:text-neutral-400">Attendance summary</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600 dark:text-neutral-400">Working Days</span>
-                <span className="font-medium text-gray-900 dark:text-neutral-100">22</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600 dark:text-neutral-400">Present Days</span>
-                <span className="font-medium text-green-600 dark:text-green-400">18</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600 dark:text-neutral-400">Absent Days</span>
-                <span className="font-medium text-red-600 dark:text-red-400">2</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600 dark:text-neutral-400">Leaves Taken</span>
-                <span className="font-medium text-blue-600 dark:text-blue-400">2</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Profile Summary */}
-        <Card className="bg-white dark:bg-neutral-800 border-gray-200 dark:border-neutral-700">
-          <CardHeader>
-            <CardTitle className="text-gray-900 dark:text-neutral-100">Profile Summary</CardTitle>
-            <CardDescription className="text-gray-600 dark:text-neutral-400">Your information</CardDescription>
-          </CardHeader>          <CardContent>
-            <div className="space-y-3">
-              <div>
-                <span className="text-sm text-gray-600 dark:text-neutral-400">Employee ID</span>
-                <div className="font-medium text-gray-900 dark:text-neutral-100">{employeeData?.employeeId || 'N/A'}</div>
-              </div>
-              <div>
-                <span className="text-sm text-gray-600 dark:text-neutral-400">Department</span>
-                <div className="font-medium text-gray-900 dark:text-neutral-100">{employeeData?.department?.name || employeeData?.department || 'N/A'}</div>
-              </div>
-              <div>
-                <span className="text-sm text-gray-600 dark:text-neutral-400">Position</span>
-                <div className="font-medium text-gray-900 dark:text-neutral-100">{employeeData?.position || 'N/A'}</div>
-              </div>
-              <div>
-                <span className="text-sm text-gray-600 dark:text-neutral-400">Join Date</span>
-                <div className="font-medium text-gray-900 dark:text-neutral-100">
-                  {employeeData?.joiningDate 
-                    ? moment(employeeData.joiningDate).format('MMM DD, YYYY')
-                    : 'N/A'
-                  }
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Activity */}
-        <Card className="col-span-1 md:col-span-2 lg:col-span-3 bg-white dark:bg-neutral-800 border-gray-200 dark:border-neutral-700">
-          <CardHeader>
-            <CardTitle className="text-gray-900 dark:text-neutral-100">Recent Activity</CardTitle>
-            <CardDescription className="text-gray-600 dark:text-neutral-400">Your latest actions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {lastActivity ? (
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <div className={`w-3 h-3 rounded-full ${
-                    lastActivity.type === 'clockIn' ? 'bg-green-500' : 'bg-red-500'
-                  }`}></div>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {dashboardStats.map((stat, index) => (
+            <Card key={index} className="bg-white/10 backdrop-blur-xl border-white/20 hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
                   <div>
-                    <span className="font-medium">
-                      {lastActivity.type === 'clockIn' ? 'Clocked In' : 'Clocked Out'}
-                    </span>
-                    <span className="text-gray-600 ml-2">
-                      {moment(lastActivity.timestamp).fromNow()}
-                    </span>
+                    <p className="text-gray-300 text-sm font-medium">{stat.title}</p>
+                    <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
+                  </div>
+                  <div className={`p-3 rounded-xl ${stat.bgColor}`}>
+                    <stat.icon className={`h-6 w-6 ${stat.color}`} />
                   </div>
                 </div>
-              ) : (
-                <div className="text-gray-500 text-center py-8">
-                  No recent activity
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Clock In/Out Card */}
+          <Card className="lg:col-span-2 bg-white/10 backdrop-blur-xl border-white/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3 text-white">
+                <div className="p-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg">
+                  <Timer className="h-5 w-5 text-white" />
+                </div>
+                Attendance Management
+              </CardTitle>
+              <CardDescription className="text-gray-300">
+                Track your daily attendance and working hours
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="flex-1 text-center sm:text-left">
+                  <p className="text-gray-300 text-sm">Current Status</p>
+                  <p className={`text-2xl font-bold ${clockStatus ? 'text-green-400' : 'text-orange-400'}`}>
+                    {clockStatus ? 'Checked In' : 'Checked Out'}
+                  </p>
+                  {lastActivity && (
+                    <p className="text-gray-400 text-sm mt-1">
+                      Last activity: {moment(lastActivity.timestamp).format('h:mm A')}
+                    </p>
+                  )}
+                </div>
+                <div className="flex-shrink-0">
+                  <NewAttendanceButton onStatusChange={handleAttendanceChange} />
+                </div>
+              </div>
+              
+              {todayAttendance && (
+                <div className="bg-white/5 rounded-xl p-4 mt-4">
+                  <h4 className="text-white font-semibold mb-2">Today's Summary</h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-300">Check In</p>
+                      <p className="text-white font-medium">
+                        {todayAttendance.checkInTime ? moment(todayAttendance.checkInTime).format('h:mm A') : 'Not checked in'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-300">Check Out</p>
+                      <p className="text-white font-medium">
+                        {todayAttendance.checkOutTime ? moment(todayAttendance.checkOutTime).format('h:mm A') : 'Not checked out'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Quick Stats */}
+          <Card className="bg-white/10 backdrop-blur-xl border-white/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3 text-white">
+                <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
+                  <BarChart3 className="h-5 w-5 text-white" />
+                </div>
+                Quick Overview
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300 text-sm">This Week</span>
+                  <span className="text-white font-semibold">5/5 Days</span>
+                </div>
+                <div className="w-full bg-white/10 rounded-full h-2">
+                  <div className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" style={{width: '100%'}}></div>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300 text-sm">This Month</span>
+                  <span className="text-white font-semibold">22/24 Days</span>
+                </div>
+                <div className="w-full bg-white/10 rounded-full h-2">
+                  <div className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style={{width: '92%'}}></div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-white/10">
+                <div className="flex items-center gap-2 text-green-400">
+                  <CheckCircle className="h-4 w-4" />
+                  <span className="text-sm font-medium">Great Performance!</span>
+                </div>
+                <p className="text-gray-300 text-xs mt-1">You're maintaining excellent attendance</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Actions */}
+        <Card className="bg-white/10 backdrop-blur-xl border-white/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 text-white">
+              <div className="p-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg">
+                <Target className="h-5 w-5 text-white" />
+              </div>
+              Quick Actions
+            </CardTitle>
+            <CardDescription className="text-gray-300">
+              Access frequently used features
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {quickActions.map((action, index) => (
+                <div key={index} className="group bg-white/5 hover:bg-white/10 rounded-xl p-4 transition-all duration-300 cursor-pointer border border-white/10 hover:border-white/20">
+                  <div className="flex items-center gap-3 mb-2">
+                    <action.icon className="h-5 w-5 text-blue-400 group-hover:text-blue-300 transition-colors" />
+                    <h4 className="text-white font-medium group-hover:text-blue-100 transition-colors">{action.title}</h4>
+                  </div>
+                  <p className="text-gray-400 text-sm">{action.description}</p>
+                </div>
+              ))}
             </div>
           </CardContent>
-        </Card>      </div>
+        </Card>
+      </div>
     </div>
   );
 };

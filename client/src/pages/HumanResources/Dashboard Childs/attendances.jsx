@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from '@/lib/axios';
 import { format } from 'date-fns';
 import { Input } from "@/components/ui/input";
@@ -20,16 +20,33 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { toast } from 'react-toastify';
-import { AttendanceEndPoints, HREmployeesPageEndPoints } from '@/redux/apis/APIsEndpoints';
+import { useToast } from "@/hooks/use-toast";
+import { 
+  Clock, 
+  Users, 
+  Calendar, 
+  Search, 
+  Filter, 
+  Plus, 
+  CheckCircle, 
+  XCircle, 
+  AlertCircle,
+  TrendingUp,
+  UserCheck,
+  UserX,
+  Timer,
+  BarChart3,
+  Trash2
+} from 'lucide-react';
 
 export function AttendancesPage() {
   const [attendances, setAttendances] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [date, setDate] = useState(new Date());
-  const [searchQuery, setSearchQuery] = useState('');  const [selectedEmployee, setSelectedEmployee] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedEmployee, setSelectedEmployee] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedDate, setSelectedDate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newAttendance, setNewAttendance] = useState({
     employeeId: '',
@@ -40,58 +57,52 @@ export function AttendancesPage() {
     workHours: 8,
     comments: ''
   });
-  // Fetch attendances and employees data
+  const { toast } = useToast();
+
+  // Fetch data on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
         const [attendancesRes, employeesRes] = await Promise.all([
           axios.get('/api/v1/attendance'),
           axios.get('/api/v1/employee/all')
         ]);
         
-        console.log('Attendances response:', attendancesRes.data);
-        console.log('Employees response:', employeesRes.data);
-        
         setAttendances(attendancesRes.data || []);
         setEmployees(employeesRes.data?.data || []);
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
-        toast.error('Failed to load attendance data');
+        toast({
+          title: "Error",
+          description: "Failed to load attendance data",
+          variant: "destructive",
+        });
+      } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [toast]);
 
-  // Filter attendances based on search query, selected date, employee, and status
-  const filteredAttendances = attendances.filter(attendance => {
-    // Get employee data from populated field or find in employees array
-    const employee = attendance.employeeId || employees.find(e => e._id === attendance.employeeId);
-    const employeeName = employee ? `${employee.firstname || ''} ${employee.lastname || ''}`.trim() : 'Unknown Employee';
-    const attendanceDate = new Date(attendance.date).toLocaleDateString();
-    const selectedDateStr = date ? date.toLocaleDateString() : '';
-    
-    const matchesSearch = employeeName.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesDate = !date || attendanceDate === selectedDateStr;
-    const matchesEmployee = selectedEmployee === 'all' || attendance.employeeId === selectedEmployee || attendance.employeeId?._id === selectedEmployee;
-    const matchesStatus = selectedStatus === 'all' || attendance.status === selectedStatus;
-    
-    return matchesSearch && matchesDate && matchesEmployee && matchesStatus;
-  });
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewAttendance({
-      ...newAttendance,
-      [name]: value
+  // Filter attendances based on search criteria
+  const filteredAttendances = useMemo(() => {
+    return attendances.filter(attendance => {
+      const employee = attendance.employeeId || employees.find(e => e._id === attendance.employeeId);
+      const employeeName = employee ? `${employee.firstname || ''} ${employee.lastname || ''}`.trim() : 'Unknown Employee';
+      
+      const matchesSearch = searchQuery === '' || employeeName.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesDate = !selectedDate || format(new Date(attendance.date), 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
+      const matchesEmployee = selectedEmployee === 'all' || attendance.employeeId === selectedEmployee || attendance.employeeId?._id === selectedEmployee;
+      const matchesStatus = selectedStatus === 'all' || attendance.status === selectedStatus;
+      
+      return matchesSearch && matchesDate && matchesEmployee && matchesStatus;
     });
-  };
+  }, [attendances, employees, searchQuery, selectedDate, selectedEmployee, selectedStatus]);
 
-  const calculateWorkHours = () => {
+  // Calculate work hours automatically
+  useEffect(() => {
     if (newAttendance.checkInTime && newAttendance.checkOutTime) {
       const checkIn = new Date(`2023-01-01T${newAttendance.checkInTime}`);
       const checkOut = new Date(`2023-01-01T${newAttendance.checkOutTime}`);
@@ -99,26 +110,35 @@ export function AttendancesPage() {
       if (checkOut > checkIn) {
         const diffMs = checkOut - checkIn;
         const diffHrs = diffMs / (1000 * 60 * 60);
-        
-        setNewAttendance({
-          ...newAttendance,
+        setNewAttendance(prev => ({
+          ...prev,
           workHours: diffHrs.toFixed(2)
-        });
+        }));
       }
     }
+  }, [newAttendance.checkInTime, newAttendance.checkOutTime]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewAttendance(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  useEffect(() => {
-    calculateWorkHours();
-  }, [newAttendance.checkInTime, newAttendance.checkOutTime]);
-  
+  const handleSelectChange = (name, value) => {
+    setNewAttendance(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     try {
       const response = await axios.post('/api/v1/attendance', newAttendance);
-      
-      setAttendances([...attendances, response.data]);
+      setAttendances(prev => [...prev, response.data]);
       setIsModalOpen(false);
       setNewAttendance({
         employeeId: '',
@@ -130,201 +150,304 @@ export function AttendancesPage() {
         comments: ''
       });
       
-      toast.success('Attendance record added successfully');
+      toast({
+        title: "Success",
+        description: "Attendance record added successfully",
+      });
     } catch (error) {
       console.error('Error adding attendance:', error);
-      toast.error(error.response?.data?.message || 'Failed to add attendance record');
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to add attendance record",
+        variant: "destructive",
+      });
     }
   };
+
   const handleDelete = async (attendanceId) => {
     if (window.confirm('Are you sure you want to delete this attendance record?')) {
       try {
         await axios.delete(`/api/v1/attendance/${attendanceId}`);
-        setAttendances(attendances.filter(a => a._id !== attendanceId));
-        toast.success('Attendance record deleted successfully');
+        setAttendances(prev => prev.filter(a => a._id !== attendanceId));
+        toast({
+          title: "Success",
+          description: "Attendance record deleted successfully",
+        });
       } catch (error) {
         console.error('Error deleting attendance:', error);
-        toast.error('Failed to delete attendance record');
+        toast({
+          title: "Error",
+          description: "Failed to delete attendance record",
+          variant: "destructive",
+        });
       }
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Present':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
-      case 'Absent':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
-      case 'Late':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
-      case 'Half Day':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
-      case 'Leave':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
-    }
+  const getStatusPill = (status) => {
+    const styles = {
+      'Present': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+      'Absent': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+      'Late': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+      'Half Day': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+      'Leave': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
+      'default': 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+    };
+    
+    return (
+      <span className={`px-3 py-1 rounded-full text-xs font-medium ${styles[status] || styles.default}`}>
+        {status}
+      </span>
+    );
   };
+
+  // Calculate stats
+  const stats = useMemo(() => {
+    const total = filteredAttendances.length;
+    const present = filteredAttendances.filter(a => a.status === 'Present').length;
+    const absent = filteredAttendances.filter(a => a.status === 'Absent').length;
+    const late = filteredAttendances.filter(a => a.status === 'Late').length;
+    
+    return [
+      {
+        title: "Total Records",
+        value: total,
+        icon: BarChart3,
+        color: "text-blue-600 dark:text-blue-400",
+        bgColor: "bg-blue-100 dark:bg-blue-900/30"
+      },
+      {
+        title: "Present",
+        value: present,
+        icon: UserCheck,
+        color: "text-green-600 dark:text-green-400",
+        bgColor: "bg-green-100 dark:bg-green-900/30"
+      },
+      {
+        title: "Absent",
+        value: absent,
+        icon: UserX,
+        color: "text-red-600 dark:text-red-400",
+        bgColor: "bg-red-100 dark:bg-red-900/30"
+      },
+      {
+        title: "Late",
+        value: late,
+        icon: Timer,
+        color: "text-yellow-600 dark:text-yellow-400",
+        bgColor: "bg-yellow-100 dark:bg-yellow-900/30"
+      }
+    ];
+  }, [filteredAttendances]);
+
   if (loading) {
-    return <div className="flex justify-center items-center h-screen bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100">Loading...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center">
+        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl p-8 shadow-xl">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-slate-700 dark:text-slate-300 mt-4 text-center">Loading attendance data...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="p-6 bg-white dark:bg-neutral-900 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-neutral-100">Attendance Management</h1>
-        
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-blue-600 hover:bg-blue-700">Add Attendance</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Add New Attendance Record</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label htmlFor="employeeId" className="text-sm font-medium">Employee</label>
-                  <Select
-                    name="employeeId"
-                    value={newAttendance.employeeId}
-                    onValueChange={(value) => setNewAttendance({...newAttendance, employeeId: value})}
-                    required
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Employee" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {employees.map(employee => (
-                        <SelectItem key={employee._id} value={employee._id}>
-                          {employee.firstname} {employee.lastname}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="date" className="text-sm font-medium">Date</label>
-                  <Input
-                    type="date"
-                    name="date"
-                    value={newAttendance.date}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="status" className="text-sm font-medium">Status</label>
-                  <Select
-                    name="status"
-                    value={newAttendance.status}
-                    onValueChange={(value) => setNewAttendance({...newAttendance, status: value})}
-                    required
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Present">Present</SelectItem>
-                      <SelectItem value="Absent">Absent</SelectItem>
-                      <SelectItem value="Late">Late</SelectItem>
-                      <SelectItem value="Half Day">Half Day</SelectItem>
-                      <SelectItem value="Leave">Leave</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="checkInTime" className="text-sm font-medium">Check-in Time</label>
-                  <Input
-                    type="time"
-                    name="checkInTime"
-                    value={newAttendance.checkInTime}
-                    onChange={handleInputChange}
-                    required={newAttendance.status !== 'Absent' && newAttendance.status !== 'Leave'}
-                    disabled={newAttendance.status === 'Absent' || newAttendance.status === 'Leave'}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="checkOutTime" className="text-sm font-medium">Check-out Time</label>
-                  <Input
-                    type="time"
-                    name="checkOutTime"
-                    value={newAttendance.checkOutTime}
-                    onChange={handleInputChange}
-                    required={newAttendance.status !== 'Absent' && newAttendance.status !== 'Leave'}
-                    disabled={newAttendance.status === 'Absent' || newAttendance.status === 'Leave'}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="workHours" className="text-sm font-medium">Work Hours</label>
-                  <Input
-                    type="number"
-                    name="workHours"
-                    value={newAttendance.workHours}
-                    onChange={handleInputChange}
-                    step="0.01"
-                    disabled
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <label htmlFor="comments" className="text-sm font-medium">Comments</label>
-                <Input
-                  name="comments"
-                  value={newAttendance.comments}
-                  onChange={handleInputChange}
-                  placeholder="Add any comments..."
-                />
-              </div>
-              
-              <div className="flex justify-end">
-                <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-                  Add Record
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/3 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="p-4 bg-white dark:bg-neutral-800 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-900 dark:text-neutral-100">Search Employee</label>
+
+      {/* Main Content */}
+      <div className="relative z-10 p-6 space-y-8">
+        {/* Header Section */}
+        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl p-8 shadow-xl">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="flex items-center space-x-4">
+              <div className="p-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg">
+                <Clock className="h-8 w-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+                  Attendance Management
+                </h1>
+                <p className="text-slate-600 dark:text-slate-400 mt-1">
+                  Track and manage employee attendance records
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl px-6 py-3 font-medium shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2">
+                    <Plus className="w-5 h-5" />
+                    Add Attendance
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl sm:max-w-[600px] shadow-2xl">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl font-bold text-slate-900 dark:text-slate-100">Add New Attendance Record</DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Employee</label>
+                        <Select
+                          value={newAttendance.employeeId}
+                          onValueChange={(value) => handleSelectChange('employeeId', value)}
+                        >
+                          <SelectTrigger className="bg-white/70 dark:bg-slate-700/70">
+                            <SelectValue placeholder="Select Employee" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {employees.map(employee => (
+                              <SelectItem key={employee._id} value={employee._id}>
+                                {employee.firstname} {employee.lastname}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Date</label>
+                        <Input
+                          type="date"
+                          name="date"
+                          value={newAttendance.date}
+                          onChange={handleInputChange}
+                          className="bg-white/70 dark:bg-slate-700/70"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Status</label>
+                        <Select
+                          value={newAttendance.status}
+                          onValueChange={(value) => handleSelectChange('status', value)}
+                        >
+                          <SelectTrigger className="bg-white/70 dark:bg-slate-700/70">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Present">Present</SelectItem>
+                            <SelectItem value="Absent">Absent</SelectItem>
+                            <SelectItem value="Late">Late</SelectItem>
+                            <SelectItem value="Half Day">Half Day</SelectItem>
+                            <SelectItem value="Leave">Leave</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Work Hours</label>
+                        <Input
+                          type="number"
+                          name="workHours"
+                          value={newAttendance.workHours}
+                          onChange={handleInputChange}
+                          className="bg-white/70 dark:bg-slate-700/70"
+                          step="0.1"
+                          min="0"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Check-in Time</label>
+                        <Input
+                          type="time"
+                          name="checkInTime"
+                          value={newAttendance.checkInTime}
+                          onChange={handleInputChange}
+                          className="bg-white/70 dark:bg-slate-700/70"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Check-out Time</label>
+                        <Input
+                          type="time"
+                          name="checkOutTime"
+                          value={newAttendance.checkOutTime}
+                          onChange={handleInputChange}
+                          className="bg-white/70 dark:bg-slate-700/70"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Comments</label>
+                      <Input
+                        name="comments"
+                        value={newAttendance.comments}
+                        onChange={handleInputChange}
+                        placeholder="Optional comments..."
+                        className="bg-white/70 dark:bg-slate-700/70"
+                      />
+                    </div>
+                    <div className="flex justify-end gap-3 pt-4">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setIsModalOpen(false)}
+                        className="rounded-xl"
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        type="submit" 
+                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6"
+                      >
+                        Add Record
+                      </Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </div>
+        </div>
+
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat, index) => (
+            <div key={index} className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{stat.title}</p>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">{stat.value}</p>
+                </div>
+                <div className={`p-3 rounded-2xl ${stat.bgColor}`}>
+                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Filters and Table */}
+        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl p-6 shadow-xl">
+          {/* Filter Controls */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+              <Input
+                type="text"
+                placeholder="Search employees..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-white/70 dark:bg-slate-700/70"
+              />
+            </div>
             <Input
-              type="text"
-              placeholder="Search by name..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-600 text-gray-900 dark:text-neutral-100"
+              type="date"
+              value={selectedDate ? format(selectedDate, 'yyyy-MM-dd') : ''}
+              onChange={(e) => setSelectedDate(e.target.value ? new Date(e.target.value) : null)}
+              className="bg-white/70 dark:bg-slate-700/70"
             />
-          </div>
-        </div>
-        
-        <div className="p-4 bg-white dark:bg-neutral-800 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-900 dark:text-neutral-100">Filter by Date</label>
-            <Input 
-                type="date"
-                value={date ? format(date, 'yyyy-MM-dd') : ''}
-                onChange={(e) => setDate(e.target.value ? new Date(e.target.value) : null)}
-                className="border rounded-md bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-600 text-gray-900 dark:text-neutral-100"
-                />
-          </div>
-        </div>
-        
-        <div className="p-4 bg-white dark:bg-neutral-800 rounded-lg shadow border border-gray-200 dark:border-neutral-700 space-y-4">          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-900 dark:text-neutral-100">Filter by Employee</label>            <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
-              <SelectTrigger className="bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-600 text-gray-900 dark:text-neutral-100">
-                <SelectValue placeholder="All Employees" />
+            <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+              <SelectTrigger className="bg-white/70 dark:bg-slate-700/70">
+                <SelectValue placeholder="Filter by Employee" />
               </SelectTrigger>
-              <SelectContent className="bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-600">
+              <SelectContent>
                 <SelectItem value="all">All Employees</SelectItem>
                 {employees.map(employee => (
                   <SelectItem key={employee._id} value={employee._id}>
@@ -333,14 +456,11 @@ export function AttendancesPage() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-900 dark:text-neutral-100">Filter by Status</label>            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-600 text-gray-900 dark:text-neutral-100">
-                <SelectValue placeholder="All Statuses" />
+            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <SelectTrigger className="bg-white/70 dark:bg-slate-700/70">
+                <SelectValue placeholder="Filter by Status" />
               </SelectTrigger>
-              <SelectContent className="bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-600">
+              <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="Present">Present</SelectItem>
                 <SelectItem value="Absent">Absent</SelectItem>
@@ -350,74 +470,87 @@ export function AttendancesPage() {
               </SelectContent>
             </Select>
           </div>
-            <Button 
-            variant="outline"
-            className="border-gray-300 dark:border-neutral-600 text-gray-700 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-700"
-            onClick={() => {
-              setSearchQuery('');
-              setDate(null);
-              setSelectedEmployee('all');
-              setSelectedStatus('all');
-            }}
-          >
-            Clear Filters
-          </Button>
-        </div>
-      </div>
-        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow border border-gray-200 dark:border-neutral-700 overflow-hidden">
-        <Table>
-          <TableCaption className="text-gray-600 dark:text-neutral-400">
-            {filteredAttendances.length === 0 
-              ? "No attendance records found" 
-              : `Showing ${filteredAttendances.length} attendance records`}
-          </TableCaption>
-          <TableHeader>
-            <TableRow className="bg-gray-50 dark:bg-neutral-700 border-gray-200 dark:border-neutral-600">
-              <TableHead className="text-gray-900 dark:text-neutral-100">Employee Name</TableHead>
-              <TableHead className="text-gray-900 dark:text-neutral-100">Date</TableHead>
-              <TableHead className="text-gray-900 dark:text-neutral-100">Status</TableHead>
-              <TableHead className="text-gray-900 dark:text-neutral-100">Check-in</TableHead>
-              <TableHead className="text-gray-900 dark:text-neutral-100">Check-out</TableHead>
-              <TableHead className="text-gray-900 dark:text-neutral-100">Work Hours</TableHead>
-              <TableHead className="text-gray-900 dark:text-neutral-100">Comments</TableHead>
-              <TableHead className="text-right text-gray-900 dark:text-neutral-100">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredAttendances.map(attendance => {
-              // Get employee data from populated field or employees array
-              const employee = attendance.employeeId || employees.find(e => e._id === attendance.employeeId);
-              return (
-                <TableRow key={attendance._id} className="hover:bg-gray-50 dark:hover:bg-neutral-700/50 border-gray-200 dark:border-neutral-600">
-                  <TableCell className="font-medium text-gray-900 dark:text-neutral-100">
-                    {employee ? `${employee.firstname || ''} ${employee.lastname || ''}`.trim() : 'Unknown Employee'}
-                  </TableCell>
-                  <TableCell className="text-gray-700 dark:text-neutral-300">{new Date(attendance.date).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(attendance.status)}`}>
-                      {attendance.status}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-gray-700 dark:text-neutral-300">{attendance.checkInTime || 'N/A'}</TableCell>
-                  <TableCell className="text-gray-700 dark:text-neutral-300">{attendance.checkOutTime || 'N/A'}</TableCell>
-                  <TableCell className="text-gray-700 dark:text-neutral-300">{attendance.workHours ? `${attendance.workHours}h` : '0h'}</TableCell>
-                  <TableCell className="max-w-[200px] truncate text-gray-700 dark:text-neutral-300" title={attendance.comments}>
-                    {attendance.comments || 'No comments'}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button 
-                      variant="ghost" 
-                      className="text-red-600 hover:text-red-800 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/30"
-                      onClick={() => handleDelete(attendance._id)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
+
+          {/* Results Summary */}
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-slate-600 dark:text-slate-400">
+              Showing <span className="font-semibold text-slate-900 dark:text-slate-100">{filteredAttendances.length}</span> of <span className="font-semibold text-slate-900 dark:text-slate-100">{attendances.length}</span> records
+            </p>
+          </div>
+
+          {/* Attendance Table */}
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-slate-200 dark:border-slate-700">
+                  <TableHead className="text-slate-700 dark:text-slate-300 font-semibold">Employee</TableHead>
+                  <TableHead className="text-slate-700 dark:text-slate-300 font-semibold">Date</TableHead>
+                  <TableHead className="text-slate-700 dark:text-slate-300 font-semibold">Status</TableHead>
+                  <TableHead className="text-slate-700 dark:text-slate-300 font-semibold">Check-in</TableHead>
+                  <TableHead className="text-slate-700 dark:text-slate-300 font-semibold">Check-out</TableHead>
+                  <TableHead className="text-slate-700 dark:text-slate-300 font-semibold">Work Hours</TableHead>
+                  <TableHead className="text-slate-700 dark:text-slate-300 font-semibold text-right">Actions</TableHead>
                 </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredAttendances.length > 0 ? (
+                  filteredAttendances.map((attendance, index) => {
+                    const employee = employees.find(e => e._id === (attendance.employeeId?._id || attendance.employeeId));
+                    return (
+                      <TableRow key={attendance._id || index} className={`border-slate-100 dark:border-slate-700 hover:bg-white/50 dark:hover:bg-slate-700/30 transition-all duration-200 ${index % 2 === 0 ? 'bg-white/20 dark:bg-slate-800/20' : ''}`}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium text-slate-900 dark:text-slate-100">
+                              {employee ? `${employee.firstname} ${employee.lastname}` : 'Unknown Employee'}
+                            </div>
+                            <div className="text-sm text-slate-500 dark:text-slate-400">
+                              {employee?.email || 'N/A'}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-slate-900 dark:text-slate-100">
+                          {format(new Date(attendance.date), 'PPP')}
+                        </TableCell>
+                        <TableCell>
+                          {getStatusPill(attendance.status)}
+                        </TableCell>
+                        <TableCell className="text-slate-900 dark:text-slate-100">
+                          {attendance.checkInTime || 'N/A'}
+                        </TableCell>
+                        <TableCell className="text-slate-900 dark:text-slate-100">
+                          {attendance.checkOutTime || 'N/A'}
+                        </TableCell>
+                        <TableCell className="text-slate-900 dark:text-slate-100 font-medium">
+                          {attendance.workHours} hrs
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(attendance._id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan="7" className="text-center h-24">
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <Clock className="h-12 w-12 text-slate-400" />
+                        <p className="text-slate-500 dark:text-slate-400 font-medium">No attendance records found</p>
+                        <p className="text-sm text-slate-400 dark:text-slate-500">Try adjusting your search criteria</p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       </div>
     </div>
   );

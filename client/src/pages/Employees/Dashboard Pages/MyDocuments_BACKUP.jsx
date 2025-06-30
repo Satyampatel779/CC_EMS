@@ -479,6 +479,179 @@ const MyDocuments = () => {
       </Dialog>
     </div>
   );
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters */}
+      <div className="flex gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Search documents..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Select value={filterCategory} onValueChange={setFilterCategory}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All Categories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            <SelectItem value="employment">Employment</SelectItem>
+            <SelectItem value="financial">Financial</SelectItem>
+            <SelectItem value="benefits">Benefits</SelectItem>
+            <SelectItem value="performance">Performance</SelectItem>
+            <SelectItem value="training">Training</SelectItem>
+            <SelectItem value="hr">HR Forms</SelectItem>
+            <SelectItem value="company">Company</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={filterType} onValueChange={setFilterType}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All Types" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="contract">Contracts</SelectItem>
+            <SelectItem value="tax">Tax Documents</SelectItem>
+            <SelectItem value="insurance">Insurance</SelectItem>
+            <SelectItem value="review">Reviews</SelectItem>
+            <SelectItem value="certificate">Certificates</SelectItem>
+            <SelectItem value="payslip">Pay Slips</SelectItem>
+            <SelectItem value="form">Forms</SelectItem>
+            <SelectItem value="policy">Policies</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Documents by Category */}
+      <div className="space-y-6">
+        {Object.entries(documentsByCategory).map(([category, categoryDocs]) => (
+          <div key={category}>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              {categoryNames[category]} ({categoryDocs.length})
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {categoryDocs.map((document) => (
+                <Card key={document.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="text-2xl">
+                          {getDocumentTypeIcon(document.type)}
+                        </div>
+                        <div className="flex-1">
+                          <CardTitle className="text-sm font-medium line-clamp-2">
+                            {document.name}
+                          </CardTitle>
+                          <Badge className={getStatusColor(document.status)} variant="outline">
+                            {document.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="space-y-2 text-sm text-gray-600 mb-4">
+                      <p className="line-clamp-2">{document.description}</p>
+                      <div className="flex items-center justify-between">
+                        <span>Size: {document.size}</span>
+                        <span>{new Date(document.uploadDate).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleView(document)}
+                        className="flex-1"
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        View
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => handleDownload(document)}
+                        className="flex-1"
+                      >
+                        <Download className="h-4 w-4 mr-1" />
+                        Download
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        ))}
+        
+        {filteredDocuments.length === 0 && (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No documents found</h3>
+              <p className="text-gray-600">
+                {searchTerm || filterType !== 'all' || filterCategory !== 'all'
+                  ? 'Try adjusting your filters to see more documents.'
+                  : 'Your documents will appear here once they are uploaded.'}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Document View Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <span className="text-xl">{selectedDocument && getDocumentTypeIcon(selectedDocument.type)}</span>
+              {selectedDocument?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedDocument && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-medium text-gray-700">Type:</span>
+                  <p className="capitalize">{selectedDocument.type}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700">Category:</span>
+                  <p className="capitalize">{selectedDocument.category}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700">Size:</span>
+                  <p>{selectedDocument.size}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700">Upload Date:</span>
+                  <p>{new Date(selectedDocument.uploadDate).toLocaleDateString()}</p>
+                </div>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700 text-sm">Description:</span>
+                <p className="text-gray-600">{selectedDocument.description}</p>
+              </div>
+              <div className="flex justify-center p-8 bg-gray-50 rounded-lg">
+                <div className="text-center">
+                  <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-4">Document preview not available</p>
+                  <Button onClick={() => handleDownload(selectedDocument)}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download to View
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 };
 
 export default MyDocuments;
