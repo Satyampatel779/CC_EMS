@@ -11,7 +11,8 @@ import RequestManagementReducer from './Slices/RequestManagementSlice.js'
 import InterviewInsightsReducer from './Slices/InterviewInsightsSlice.js'
 import HRProfilesReducer from './Slices/HRProfilesSlice.js';
 
-export const store = configureStore({    reducer: {
+export const store = configureStore({
+    reducer: {
         employeereducer: EmployeeReducer,
         HRReducer: HRReducer,
         dashboardreducer: DashbaordReducer,

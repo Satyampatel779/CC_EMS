@@ -1,4 +1,4 @@
-import { HRSignupPage } from "../pages/HumanResources/HRSignup"
+import { HRSiimport { SimpleDepartmentPageNoLoading } from "../pages/HumanResources/Dashboard Childs/SimpleDepartmentPageNoLoading.jsx";nupPage } from "../pages/HumanResources/HRSignup"
 import { HRLogin } from "../pages/HumanResources/HRlogin"
 import { HRDashbaord } from "../pages/HumanResources/HRdashbaord"
 import { VerifyEmailPage } from "../pages/HumanResources/verifyemailpage.jsx"
@@ -11,7 +11,7 @@ import { ResetHRVerifyEmailPage } from "../pages/HumanResources/resetemail.jsx"
 import { HRDashboardPage } from "../pages/HumanResources/Dashboard Childs/dashboardpage.jsx"
 import { HRProtectedRoutes } from "./HRprotectedroutes.jsx"
 import { HREmployeesPage } from "../pages/HumanResources/Dashboard Childs/employeespage.jsx"
-import { SimpleDepartmentPageNoLoading } from "../pages/HumanResources/Dashboard Childs/SimpleDepartmentPageNoLoading.jsx"
+import { HRDepartmentPage } from "../pages/HumanResources/Dashboard Childs/departmentpage.jsx"
 import { HRSalaryPage } from "../pages/HumanResources/Dashboard Childs/salarypage.jsx";
 import { AttendancesPage } from "../pages/HumanResources/Dashboard Childs/attendances.jsx";
 import { CalendarPage } from "../pages/HumanResources/Dashboard Childs/CalendarPage.jsx";
@@ -47,10 +47,6 @@ export const HRRoutes = [
         // Add a redirect from /auth/HR/employees to /HR/dashboard/employees
         path: "/auth/HR/employees",
         element: <Navigate to="/HR/dashboard/employees" replace />
-    },
-    {
-        path: "/HR",
-        element: <HRProtectedRoutes />
     },
     {
         path: "/HR/dashboard",

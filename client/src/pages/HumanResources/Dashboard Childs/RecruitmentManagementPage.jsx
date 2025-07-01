@@ -32,6 +32,11 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const RecruitmentManagementPage = () => {
   const dispatch = useDispatch();
@@ -72,6 +77,62 @@ const RecruitmentManagementPage = () => {
     experienceLevel: 'entry',
     benefits: ''
   });
+
+  // helper: status pill badge
+  const getStatusPill = (status) => {
+    let colorClass;
+    switch(status) {
+      case 'active': colorClass = 'bg-green-100 text-green-800'; break;
+      case 'draft': colorClass = 'bg-gray-100 text-gray-800'; break;
+      case 'closed': colorClass = 'bg-red-100 text-red-800'; break;
+      default: colorClass = 'bg-gray-100 text-gray-800';
+    }
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${colorClass}`}>{status.charAt(0).toUpperCase() + status.slice(1)}</span>
+    );
+  };
+
+  // helper: delete recruitment
+  const handleDelete = async (id) => {
+    try {
+      await dispatch(deleteRecruitment(id)).unwrap();
+      toast({ title: 'Success', description: 'Job posting deleted successfully' });
+    } catch (err) {
+      toast({ title: 'Error', description: 'Failed to delete job posting', variant: 'destructive' });
+    }
+  };
+
+  // stats summary cards
+  const total = Array.isArray(recruitments) ? recruitments.length : 0;
+  const activeCount = Array.isArray(recruitments) ? recruitments.filter(r => r.status === 'active').length : 0;
+  const draftCount = Array.isArray(recruitments) ? recruitments.filter(r => r.status === 'draft').length : 0;
+  const closedCount = Array.isArray(recruitments) ? recruitments.filter(r => r.status === 'closed').length : 0;
+  const stats = [
+    { title: 'Total Postings', value: total, icon: Briefcase, bgColor: 'bg-blue-100', color: 'text-blue-500' },
+    { title: 'Active', value: activeCount, icon: CheckCircle, bgColor: 'bg-green-100', color: 'text-green-500' },
+    { title: 'Draft', value: draftCount, icon: Clock, bgColor: 'bg-gray-100', color: 'text-gray-500' },
+    { title: 'Closed', value: closedCount, icon: XCircle, bgColor: 'bg-red-100', color: 'text-red-500' }
+  ];
+
+  // Filter recruitments based on search and filters
+  const filteredRecruitments = React.useMemo(() => {
+    if (!Array.isArray(recruitments)) return [];
+    
+    return recruitments.filter(recruitment => {
+      const matchesSearch = searchQuery === '' || 
+        recruitment.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        recruitment.position?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        recruitment.location?.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesStatus = statusFilter === 'all' || recruitment.status === statusFilter;
+      
+      const matchesDepartment = departmentFilter === 'all' || 
+        recruitment.department === departmentFilter ||
+        recruitment.department?.name === departmentFilter;
+      
+      return matchesSearch && matchesStatus && matchesDepartment;
+    });
+  }, [recruitments, searchQuery, statusFilter, departmentFilter]);
 
   useEffect(() => {
     dispatch(fetchRecruitments());

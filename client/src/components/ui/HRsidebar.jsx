@@ -16,7 +16,6 @@ import { handleLogout } from "@/apis/apiService"
 import { useState } from "react"
 import { useDispatch } from "react-redux"
 import { logoutHR } from "@/redux/Slices/HRSlice"
-import { ThemeToggle } from "../common/ThemeToggle"
 import { 
     LayoutDashboard, 
     Users, 
@@ -190,15 +189,6 @@ export function HRdashboardSidebar() {
 
             {/* Footer Section */}
             <SidebarFooter className={`relative z-10 border-t border-gray-200 transition-all duration-300 ${isCollapsed ? 'p-2' : 'p-4'}`}>
-                {/* Theme Toggle (only when expanded) */}
-                {!isCollapsed && (
-                    <div className="mb-4">
-                        <div className="flex items-center justify-center p-3 rounded-xl bg-white/50 border border-gray-200 hover:bg-white/70 transition-all duration-300">
-                            <ThemeToggle variant="ghost" size="sm" className="text-gray-700 hover:text-gray-900" />
-                        </div>
-                    </div>
-                )}
-
                 {/* Logout Button */}
                 <div className="flex justify-center">
                     {!isCollapsed ? (

@@ -1,8 +1,2 @@
-import axios from 'axios';
-
-export const apiService = axios.create({
-  baseURL: import.meta.env.VITE_EMPLOYEE_API,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+// Re-export the properly configured apiService from the correct location
+export { apiService } from '../../apis/apiService.js';

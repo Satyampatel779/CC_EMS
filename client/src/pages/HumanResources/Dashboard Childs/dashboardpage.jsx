@@ -24,6 +24,18 @@ export const HRDashboardPage = () => {
     const navigate = useNavigate();
     const [currentTime, setCurrentTime] = useState(new Date());
 
+    // Utility function to format time more professionally - moved to top to prevent hoisting issues
+    function formatTimeAgo(date) {
+        const now = new Date();
+        const then = new Date(date);
+        const diffInSeconds = Math.floor((now - then) / 1000);
+        if (diffInSeconds < 60) return 'Just now';
+        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+        if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+        return then.toLocaleDateString();
+    }
+
     // Real-time clock update
     useEffect(() => {
         const timer = setInterval(() => {
@@ -184,20 +196,6 @@ export const HRDashboardPage = () => {
     };
 
     const recentActivities = generateRecentActivities();
-
-    // Utility function to format time more professionally
-    const formatTimeAgo = (date) => {
-        const now = new Date();
-        const then = new Date(date);
-        const diffInSeconds = Math.floor((now - then) / 1000);
-        
-        if (diffInSeconds < 60) return 'Just now';
-        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-        if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
-        
-        return then.toLocaleDateString();
-    };
 
     if (DashboardState.isLoading) {
         return (
