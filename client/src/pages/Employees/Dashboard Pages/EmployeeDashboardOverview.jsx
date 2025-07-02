@@ -218,7 +218,7 @@ const EmployeeDashboardOverview = () => {
                   )}
                 </div>
                 <div className="flex-shrink-0">
-                  <NewAttendanceButton onStatusChange={handleAttendanceChange} />
+                  <NewAttendanceButton onUpdate={handleAttendanceChange} />
                 </div>
               </div>
               
@@ -229,13 +229,21 @@ const EmployeeDashboardOverview = () => {
                     <div>
                       <p className="text-gray-300">Check In</p>
                       <p className="text-white font-medium">
-                        {todayAttendance.checkInTime ? moment(todayAttendance.checkInTime).format('h:mm A') : 'Not checked in'}
+                        {todayAttendance.checkInTime ? 
+                          (typeof todayAttendance.checkInTime === 'string' ? 
+                            todayAttendance.checkInTime : 
+                            moment(todayAttendance.checkInTime).format('h:mm A')
+                          ) : 'Not checked in'}
                       </p>
                     </div>
                     <div>
                       <p className="text-gray-300">Check Out</p>
                       <p className="text-white font-medium">
-                        {todayAttendance.checkOutTime ? moment(todayAttendance.checkOutTime).format('h:mm A') : 'Not checked out'}
+                        {todayAttendance.checkOutTime ? 
+                          (typeof todayAttendance.checkOutTime === 'string' ? 
+                            todayAttendance.checkOutTime : 
+                            moment(todayAttendance.checkOutTime).format('h:mm A')
+                          ) : 'Not checked out'}
                       </p>
                     </div>
                   </div>

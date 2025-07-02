@@ -8,7 +8,7 @@ import EmployeeAttendance from "../pages/Employees/Dashboard Pages/EmployeeAtten
 import EmployeeLeaves from "../pages/Employees/Dashboard Pages/EmployeeLeaves.jsx"
 import EmployeeSalary from "../pages/Employees/Dashboard Pages/EmployeeSalary.jsx"
 import EmployeeRequests from "../pages/Employees/Dashboard Pages/EmployeeRequests.jsx"
-import CompanyCalendar from "../pages/Employees/Dashboard Pages/CompanyCalendar.jsx"
+import EnhancedEmployeeCalendar from "../pages/Employees/Dashboard Pages/EnhancedEmployeeCalendar.jsx"
 import MyDocuments from "../pages/Employees/Dashboard Pages/MyDocuments.jsx"
 import { ProtectedRoutes } from "./protectedroutes.jsx"
 import NewProtectedRoutes from "./NewProtectedRoutes.jsx"
@@ -69,7 +69,7 @@ export const EmployeeRoutes = [
             },
             {
                 path: "calendar",
-                element: <CompanyCalendar />
+                element: <EnhancedEmployeeCalendar />
             },
             {
                 path: "documents",

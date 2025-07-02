@@ -131,6 +131,16 @@ export const ApplicantEndPoints = {
 export const OrganizationEndPoints = {
     GET_INFO: "/api/v1/organization/info",
     UPDATE_INFO: "/api/v1/organization/update"
+}
+
+export const ScheduleEndPoints = {
+    GETALL: "/api/v1/schedule/all",
+    CREATE: "/api/v1/schedule/create-schedule",
+    UPDATE: (id) => `/api/v1/schedule/update-schedule/${id}`,
+    DELETE: (id) => `/api/v1/schedule/delete-schedule/${id}`,
+    GETONE: (id) => `/api/v1/schedule/${id}`,
+    GET_BY_EMPLOYEE: (employeeId) => `/api/v1/schedule/employee/${employeeId}`,
+    GET_BY_DATE_RANGE: "/api/v1/schedule/date-range"
 };
 
 // Combined export for easier access
@@ -188,6 +198,15 @@ export const APIsEndpoints = {
     updateCalendarEvent: CorporateCalendarEndPoints.UPDATE,
     deleteCalendarEvent: CorporateCalendarEndPoints.DELETE,
 
+    // Schedule Management
+    getAllSchedules: ScheduleEndPoints.GETALL,
+    createSchedule: ScheduleEndPoints.CREATE,
+    updateSchedule: ScheduleEndPoints.UPDATE,
+    deleteSchedule: ScheduleEndPoints.DELETE,
+    getScheduleById: ScheduleEndPoints.GETONE,
+    getSchedulesByEmployee: ScheduleEndPoints.GET_BY_EMPLOYEE,
+    getSchedulesByDateRange: ScheduleEndPoints.GET_BY_DATE_RANGE,
+
     // Recruitment Management
     getAllRecruitments: RecruitmentEndPoints.GETALL,
     createRecruitment: RecruitmentEndPoints.CREATE,
@@ -236,5 +255,5 @@ export const APIsEndpoints = {
 
     // Organization Management
     getOrganizationInfo: OrganizationEndPoints.GET_INFO,
-    updateOrganizationInfo: OrganizationEndPoints.UPDATE_INFO
+    updateOrganizationInfo: OrganizationEndPoints.UPDATE_INFO,
 };

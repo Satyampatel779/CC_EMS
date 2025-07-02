@@ -14,7 +14,7 @@ import { HREmployeesPage } from "../pages/HumanResources/Dashboard Childs/employ
 import { SimpleDepartmentPageNoLoading } from "../pages/HumanResources/Dashboard Childs/SimpleDepartmentPageNoLoading.jsx"
 import { HRSalaryPage } from "../pages/HumanResources/Dashboard Childs/salarypage.jsx";
 import { AttendancesPage } from "../pages/HumanResources/Dashboard Childs/attendances.jsx";
-import { CalendarPage } from "../pages/HumanResources/Dashboard Childs/CalendarPage.jsx";
+import EnhancedCalendarPage from "../pages/HumanResources/Dashboard Childs/EnhancedCalendarPage.jsx";
 import { HRSettingsPage } from "../pages/HumanResources/HRSettingsPage.jsx";
 import SimpleRecruitmentPage from "../pages/HumanResources/Dashboard Childs/SimpleRecruitmentPage.jsx";
 import RequestManagementPage from "../pages/HumanResources/Dashboard Childs/RequestManagementPage.jsx";
@@ -82,7 +82,7 @@ export const HRRoutes = [
             },
             {
                 path: "/HR/dashboard/calendar",
-                element: <CalendarPage />
+                element: <EnhancedCalendarPage />
             },
             {
                 path: "/HR/dashboard/recruitment",

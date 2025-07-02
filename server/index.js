@@ -16,6 +16,7 @@ import ApplicantRouter from './routes/Applicant.route.js';
 import InterviewInsightRouter from './routes/InterviewInsights.route.js';
 import GenerateRequestRouter from './routes/GenerateRequest.route.js';
 import CorporateCalendarRouter from './routes/CorporateCalendar.route.js';
+import ScheduleRouter from './routes/Schedule.route.js';
 import BalanceRouter from './routes/Balance.route.js';
 import OrganizationRouter from './routes/Organization.route.js';
 import DebugRouter from './routes/debug.route.js';
@@ -239,6 +240,7 @@ app.use("/api/v1/applicant", ApplicantRouter);
 app.use("/api/v1/interview-insights", InterviewInsightRouter);
 app.use("/api/v1/generate-request", GenerateRequestRouter);
 app.use("/api/v1/corporate-calendar", CorporateCalendarRouter);
+app.use("/api/v1/schedule", ScheduleRouter);
 app.use("/api/v1/balance", BalanceRouter);
 app.use("/api/v1/organization", OrganizationRouter);
 
