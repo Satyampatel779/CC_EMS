@@ -125,7 +125,7 @@
 
 ### 👤 Employee Profile
 *Detailed employee profile management interface*
-![Employee Profile](./screenshot/EmployeeMyProfile.png)
+![Employee Profile](./screenshot/Employee%20My%20Profile%20Page.png)
 
 ### ⏰ Attendance Management
 *Real-time attendance tracking with comprehensive management features*
