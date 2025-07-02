@@ -40,7 +40,7 @@
 ### 👨‍💻 Developer
 
 **Satyam Patel** - Full-Stack Developer  
-*Solo project developed from November 2024 to July 2025*
+*Solo project developed from April 2025 to July 2025*
 
 ## ✨ Features
 
