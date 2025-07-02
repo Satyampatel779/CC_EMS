@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { EmployeeRoutes } from './routes/Employeeroutes'
 import { HRRoutes } from './routes/HRroutes'
+import { PublicRoutes } from './routes/PublicRoutes'
 import { initAuth } from './utils/initAuth';
 import { ToastContainer } from 'react-toastify';
 import ErrorBoundary from './components/common/ErrorBoundary';
@@ -26,6 +27,9 @@ function App() {
     <ThemeProvider>
       <ErrorBoundary>
         <Routes>
+          {PublicRoutes.map((route, index) => (
+            <Route key={`public-${index}`} path={route.path} element={route.element} />
+          ))}
           {HRRoutes.map((route, index) => (
             <Route key={index} path={route.path} element={route.element}>
               {route.children && route.children.map((childRoute, childIndex) => (
