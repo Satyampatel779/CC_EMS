@@ -111,29 +111,33 @@
 
 ## 📸 Screenshots
 
-### Landing Page
-*Add your landing page screenshot here*
-![Landing Page](./screenshots/landing-page.png)
+### 🏠 Landing Page
+*Modern, responsive landing page with gradient design and clear navigation*
+![Landing Page](./screenshot/Landing%20Page.png)
 
-### HR Dashboard
-*Add your HR dashboard screenshot here*
-![HR Dashboard](./screenshots/hr-dashboard.png)
+### 👨‍💼 HR Dashboard
+*Comprehensive HR admin dashboard with analytics and management tools*
+![HR Dashboard](./screenshot/HR%20Dashboard.png)
 
-### Employee Dashboard
-*Add your employee dashboard screenshot here*
-![Employee Dashboard](./screenshots/employee-dashboard.png)
+### 👥 Employee Dashboard
+*Clean, intuitive employee dashboard with quick access to important features*
+![Employee Dashboard](./screenshot/Employee%20Dashboard.png)
 
-### Attendance System
-*Add your attendance system screenshot here*
-![Attendance System](./screenshots/attendance-system.png)
+### 👤 Employee Profile
+*Detailed employee profile management interface*
+![Employee Profile](./screenshot/Employee%20My%20Profile%20Page.png)
 
-### Payroll Management
-*Add your payroll management screenshot here*
-![Payroll Management](./screenshots/payroll-management.png)
+### ⏰ Attendance Management
+*Real-time attendance tracking with comprehensive management features*
+![Attendance Management](./screenshot/Attendance%20Management.png)
 
-### Reports & Analytics
-*Add your reports screenshot here*
-![Reports & Analytics](./screenshots/reports-analytics.png)
+### 🏢 Department Management
+*Organized department structure and management system*
+![Department Management](./screenshot/Department%20Management.png)
+
+### 💰 Payroll Automation
+*Automated payroll processing and salary management system*
+![Payroll Automation](./screenshot/Payroll%20Automation.png)
 
 ## 🚀 Installation
 
@@ -409,10 +413,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Satyam Patel**  
 Full-Stack Developer
 
-- 💼 **LinkedIn**: [Your LinkedIn Profile]
-- 📧 **Email**: [Your Email Address]
-- 🌐 **Portfolio**: [Your Portfolio Website]
-- 💻 **GitHub**: [Your GitHub Profile]
+- 💼 **LinkedIn**: [\[Your LinkedIn Profile\]](https://www.linkedin.com/in/satyampatel779/)
+- 📧 **Email**: Satyampatel779@gmail.com
+- 💻 **GitHub**: [\[Your GitHub Profile\]](https://github.com/Satyampatel779)
 
 ---
 
