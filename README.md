@@ -15,7 +15,6 @@
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
 - [Screenshots](#-screenshots)
-- [Installation](#-installation)
 - [Usage](#-usage)
 - [API Documentation](#-api-documentation)
 - [Database Schema](#-database-schema)
@@ -139,77 +138,7 @@
 *Automated payroll processing and salary management system*
 ![Payroll Automation](./screenshot/Payroll%20Automation.png)
 
-## 🚀 Installation
-
-### Prerequisites
-- Node.js (v18.0 or higher)
-- MongoDB (v6.0 or higher)
-- Git
-
-### Clone the Repository
-```bash
-git clone https://github.com/yourusername/employee-management-system.git
-cd employee-management-system
-```
-
-### Backend Setup
-```bash
-# Navigate to server directory
-cd server
-
-# Install dependencies
-npm install
-
-# Create environment file
-cp .env.example .env
-
-# Configure your environment variables
-# Edit .env file with your database URL, JWT secret, etc.
-
-# Start the server
-npm run dev
-```
-
-### Frontend Setup
-```bash
-# Navigate to client directory
-cd ../client
-
-# Install dependencies
-npm install
-
-# Start the development server
-npm run dev
-```
-
-### Environment Variables
-
-Create a `.env` file in the server directory:
-
-```env
-# Database
-MONGO_URI=mongodb://localhost:27017/ems-pro
-DB_NAME=ems-pro
-
-# JWT
-JWT_SECRET=your-super-secret-jwt-key
-JWT_EXPIRE=7d
-
-# Email Configuration
-SMTP_HOST=your-smtp-host
-SMTP_PORT=587
-SMTP_EMAIL=your-email@domain.com
-SMTP_PASSWORD=your-email-password
-
-# Server
-PORT=5000
-NODE_ENV=development
-
-# Frontend URL
-CLIENT_URL=http://localhost:5173
-```
-
-## 📖 Usage
+##  Usage
 
 ### For HR Administrators
 
@@ -413,9 +342,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Satyam Patel**  
 Full-Stack Developer
 
-- 💼 **LinkedIn**: [\[Your LinkedIn Profile\]](https://www.linkedin.com/in/satyampatel779/)
+- 💼 **LinkedIn**: [\[LinkedIn Profile\]](https://www.linkedin.com/in/satyampatel779/)
 - 📧 **Email**: Satyampatel779@gmail.com
-- 💻 **GitHub**: [\[Your GitHub Profile\]](https://github.com/Satyampatel779)
+- 💻 **GitHub**: [\[GitHub Profile\]](https://github.com/Satyampatel779)
 
 ---
 
